@@ -38,12 +38,16 @@ Plugin.registerSourceHandler("smart.json", function (compileStep) {
     //  is needed by 'bower.commands.install()'
     //  bower: {
     //    "foo": "1.2.3",
-    //    "bar": "2.1.2"
+    //    "bar": "2.1.2",
+    //    "baz": ""
     //  }
     //  =>
-    //  ["foo#1.2.3", "foo#2.1.2"]
+    //  ["foo#1.2.3", "foo#2.1.2", "baz"]
     var specs = _.map(tree.bower, function(version, name) {
-      return name + "#" + version;
+      if (! _.isEmpty(version))
+        return name + "#" + version;
+      else
+        return name;
     });
 
     // XXX We should test if we already have the dependency in local cache
