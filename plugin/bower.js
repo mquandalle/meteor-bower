@@ -34,14 +34,15 @@ var bowerHandler = function(compileStep, bowerTree) {
       return name;
   });
 
-  // XXX We should test if we already have the dependency in local cache. See
-  //  the Meteor-core work on the `constraint-solver` package. Is this already
-  //  handled by the bower downloader?
-  console.log("\n" + compileStep.packageName + ": updating bower dependencies...");
-
+  // Bower handle cache managment for us.
   var installedPackages = Meteor._wrapAsync(function(cb) {
+    var logInstallation = false;
     bower.commands
       .install(specs, {save: true}, {directory: bowerDirectory})
+      .on('log', function(log) {
+        if (!logInstallation && log.id === "install")
+          console.log("Bower: install packages...");
+      })
       .on('end', function (installed) {
         var pkgs = {};
         _.each(installed, function(val, name) {
@@ -54,10 +55,8 @@ var bowerHandler = function(compileStep, bowerTree) {
       });
   })();
 
-  if (_.isEmpty(installedPackages))
-    console.log("Everything is up-to-date"); // XXX Useless?
-  else
-    console.log("Installed new bower packages: ", installedPackages);
+  if (! _.isEmpty(installedPackages))
+    console.log("Bower: ", installedPackages);
 
   // XXX Loop over packages, look at each `.bower.json` attribute `main` and
   //  add the associated file to the Meteor bundle. Is there any bower function
