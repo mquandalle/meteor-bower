@@ -28,10 +28,12 @@ var bowerHandler = function(compileStep, bowerTree) {
   //  =>
   //  ["foo#1.2.3", "foo#2.1.2", "baz"]
   var specs = _.map(bowerTree, function(version, name) {
-    if (! _.isEmpty(version))
-      return name + "#" + version;
-    else
-      return name;
+    if (_.isEmpty(version))
+      compileStep.error({
+        message: "You must provide a version number for package " + name
+      });
+
+    return name + "#" + version;
   });
 
   // Bower handle cache managment for us.
