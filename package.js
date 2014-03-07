@@ -5,6 +5,7 @@ Package.describe({
 Package._transitional_registerBuildPlugin({
   name: "bower",
   use: [
+    "meteor",
     "underscore",
   ],
   sources: [
