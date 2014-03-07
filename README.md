@@ -1,12 +1,13 @@
 # Bower for Meteor
 
-> *Warning* This is a Work In Progress, not working yet.
+> v0.1.0 is working now, but primitive.
 
 The goal of this package is to extends
 [meteorite](http://oortcloud.github.io/meteorite/) to supports
 [bower](http://bower.io/) packages.
 
-In your `smart.json` you can specify an array of bower packages to install:
+In your `smart.json` you can specify a dictionnary of bower packages to
+install:
 
 ```json
 {
@@ -24,7 +25,6 @@ dependencies you must always provide a version number.
 
 ## Todo
 
-- Find a home for bower packages
 - Retreive content provided in the `main` field (we should give this content
   to the good source handler)
 - Show a download progress bar in the console
