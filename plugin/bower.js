@@ -4,33 +4,9 @@ var bower = Npm.require("bower");
 // XXX Should find a better host
 var rootBowerDirectory = ".meteor/local/bower_components";
 
-// XXX Hack. If this line is not present the `smart.json` handler is not called
-Plugin.registerSourceHandler("json", null);
+var bowerHandler = function(compileStep, bowerTree) {
 
-// XXX smart.json will disappear when atmosphere will be merged in core. Should
-// support "bower.json" that will contains only the bower packages dictionnary.
-Plugin.registerSourceHandler("smart.json", function (compileStep) {
-
-  // XXX Code copied from
-  // packages/templating/plugin/compile-template.js:6
-  if (! compileStep.arch.match(/^browser(\.|$)/))
-    return;
-
-  var content = compileStep.read().toString('utf8');
-  try {
-    var tree = JSON.parse(content);
-  } catch (e) {
-    compileStep.error({
-      message: "Syntax error in " + compileStep.inputPath,
-      line: e.line,
-      column: e.column
-    });
-  }
-
-  if (! _.has(tree, "bower"))
-    return;
-
-  if (! _.isObject(tree.bower))
+  if (! _.isObject(bowerTree))
     compileStep.error({
       message: "Bower attribute must be an object in " + compileStep.inputPath
     });
@@ -51,7 +27,7 @@ Plugin.registerSourceHandler("smart.json", function (compileStep) {
   //  }
   //  =>
   //  ["foo#1.2.3", "foo#2.1.2", "baz"]
-  var specs = _.map(tree.bower, function(version, name) {
+  var specs = _.map(bowerTree, function(version, name) {
     if (! _.isEmpty(version))
       return name + "#" + version;
     else
@@ -67,9 +43,11 @@ Plugin.registerSourceHandler("smart.json", function (compileStep) {
     bower.commands
       .install(specs, {save: true}, {directory: bowerDirectory})
       .on('end', function (installed) {
-        cb(null, _.each(installed, function(val, name) {
+        var pkgs = {};
+        _.each(installed, function(val, name) {
           pkgs[name] = val.pkgMeta.version;
-        }));
+        });
+        cb(null ,pkgs);
       })
       .on('error', function(error) {
         cb(error, null);
@@ -85,4 +63,60 @@ Plugin.registerSourceHandler("smart.json", function (compileStep) {
   //  add the associated file to the Meteor bundle. Is there any bower function
   //  to load this file from a directory?
 
+}
+
+/****************/
+/* JSON Loaders */
+/****************/
+
+var loadJSONContent = function(compileStep, content) {
+  try {
+    return JSON.parse(content);
+  }
+  catch (e) {
+    compileStep.error({
+      message: "Syntax error in " + compileStep.inputPath,
+      line: e.line,
+      column: e.column
+    });
+  }
+};
+
+var loadJSONFile = function(compileStep) {
+  var content = compileStep.read().toString('utf8');
+  return loadJSONContent(compileStep, content);
+};
+
+/*******************/
+/* Source Handlers */
+/*******************/
+
+// XXX Hack. If this line is not present `xxx.json` handlers is not called. This
+//  is a Meteor bug.
+Plugin.registerSourceHandler("json", null);
+
+// We look at the field "bower" of the `smart.json` file.
+// XXX Remove when atmosphere is merged in Meteor-core
+Plugin.registerSourceHandler("smart.json", function (compileStep) {
+  // XXX Code copied from
+  // packages/templating/plugin/compile-template.js:6
+  if (! compileStep.arch.match(/^browser(\.|$)/))
+    return;
+
+  var bowerTree = loadJSONFile(compileStep);
+  if (! _.has(bowerTree, "bower"))
+    return;
+
+  return bowerHandler(compileStep, bowerTree.bower);
+});
+
+Plugin.registerSourceHandler("bower.json", function (compileStep) {
+  // XXX Code copied from
+  // packages/templating/plugin/compile-template.js:6
+  if (! compileStep.arch.match(/^browser(\.|$)/))
+    return;
+
+  var bowerTree = loadJSONFile(compileStep);
+
+  return bowerHandler(compileStep, bowerTree);
 });

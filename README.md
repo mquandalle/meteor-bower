@@ -23,6 +23,9 @@ install:
 To ensure that other people running your app will get the exact same
 dependencies you must always provide a version number.
 
+If you don't want to use the `smart.json` file for that purpose, you can use a
+dedicated `bower.json`.
+
 ## Todo
 
 - Retreive content provided in the `main` field (we should give this content
