@@ -1,4 +1,5 @@
 var path = Npm.require("path");
+var fs = Npm.require("fs");
 
 // Install bower_components into the local meteor build.
 // XXX Should we find a better host?
@@ -17,7 +18,6 @@ var bowerHandler = function(compileStep, bowerTree) {
 
   var bowerDirectory = path.join(path.relative(process.cwd(),
                          path.dirname(compileStep._fullInputPath)), bowerHouse);
-  var bowerOptions = { directory: bowerDirectory };
 
   // Convert 'smart.json' version spec object to an array format which
   //  is needed by 'bower.commands.install()'
@@ -36,16 +36,41 @@ var bowerHandler = function(compileStep, bowerTree) {
     return name + "#" + version;
   });
 
-  // Bower handle cache managment for us.
-  var installedPackages = Bower.install(specs, {save: true}, bowerOptions);
-  _.each(installedPackages, function(val, name) {
-    log(name + " v" + val.pkgMeta.version + " successfully installed");
+  // Bower handle the cache managment for us.
+  var installedPackages = Bower.install(specs, {save: true},
+                                                   {directory: bowerDirectory});
+  _.each(installedPackages, function(val, pkgName) {
+    log(pkgName + " v" + val.pkgMeta.version + " successfully installed");
   });
 
-  // XXX Loop over packages, look at each `.bower.json` attribute `main` and
-  //  add the associated file to the Meteor bundle. Is there any bower function
-  //  to load this file from a directory?
+  // Loop over packages, look at each `.bower.json` attribute `main` and
+  //  add the associated file to the Meteor bundle.
+  // XXX If a package is present more than once (potentialy in different
+  //  versions from different places), we should only include it once with the
+  //  good version. Hopefully the `constraint-solver` package will help.
+  _.each(bowerTree, function (version, pkgName) {
+    var bowerInfosPath = path.join(bowerDirectory, pkgName, '.bower.json');
+    var infos = loadJSONContent(compileStep, fs.readFileSync(bowerInfosPath));
 
+    if (! _.has(infos, "main") || ! _.isString(infos.main))
+      return;
+
+    var ext = path.extname(infos.main)
+    if (ext !== ".js") {
+      log(ext + " extension is not supported yet");
+      return;
+    }
+
+    var contentPath = path.join(bowerDirectory, pkgName, infos.main);
+    var content = fs.readFileSync(contentPath).toString('utf8');
+    var virtualPath = path.join('packages/bower/', pkgName, infos.main);
+    compileStep.addJavaScript({
+      path: virtualPath,
+      sourcePath: contentPath,
+      data: content,
+      bare: true
+    });
+  });
 }
 
 /****************/
