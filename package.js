@@ -10,8 +10,11 @@ Package._transitional_registerBuildPlugin({
   ],
   sources: [
     "plugin/bower.js",
+    "plugin/handler.js",
   ],
   npmDependencies: {
     "bower": "1.2.8",
   }
 });
+
+// XXX Tests?

@@ -1,13 +1,7 @@
 # Bower for Meteor
 
-> v0.1.0 is working now, but primitive.
-
-The goal of this package is to extends
-[meteorite](http://oortcloud.github.io/meteorite/) to supports
-[bower](http://bower.io/) packages.
-
-In your `smart.json` you can specify a dictionnary of bower packages to
-install:
+[Bower](http://bower.io/) is a popular repository of client-side JavaScript
+librairies. In your `smart.json` you can specify a dictionnary of bower packages:
 
 ```json
 {
@@ -20,17 +14,13 @@ install:
 }
 ```
 
-To ensure that other people running your app will get the exact same
+You now have `select2` and `backbone` librairies in your client application!
+
+> To ensure that other people running your app will always get the exact same
 dependencies you must always provide a version number.
 
 If you don't want to use the `smart.json` file for that purpose, you can use a
-dedicated `bower.json`.
-
-## Todo
-
-- Retreive content provided in the `main` field (we should give this content
-  to the good source handler)
-- Show a download progress bar in the console
+dedicated file named `bower.json`.
 
 ## Contribute
 
