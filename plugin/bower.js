@@ -21,6 +21,5 @@ var bowerCommandSync = function (command) {
 Bower = new Object();
 
 _.forEach(bowerCommands, function (command) {
-    Bower[command] = bowerCommandSync(command);
-  }
-);
+  Bower[command] = bowerCommandSync(command);
+});

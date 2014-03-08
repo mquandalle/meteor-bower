@@ -1,9 +1,9 @@
 var path = Npm.require("path");
 var fs = Npm.require("fs");
 
-// Install bower_components into the local meteor build.
+// Install bower components into the local meteor directory.
 // XXX Should we find a better host?
-var bowerHouse = ".meteor/local/bower_components";
+var bowerHome = ".meteor/local/bower";
 
 log = function (message) {
   return console.log("Bower:", message);
@@ -17,10 +17,9 @@ var bowerHandler = function(compileStep, bowerTree) {
     });
 
   var bowerDirectory = path.join(path.relative(process.cwd(),
-                         path.dirname(compileStep._fullInputPath)), bowerHouse);
+                          path.dirname(compileStep._fullInputPath)), bowerHome);
 
-  // Convert 'smart.json' version spec object to an array format which
-  //  is needed by 'bower.commands.install()'
+  // Convert bowerTree object to an array format needed by `Bower.install`:
   //  bower: {
   //    "foo": "1.2.3",
   //    "bar": "2.1.2"
@@ -82,7 +81,7 @@ var bowerHandler = function(compileStep, bowerTree) {
       } else {
         compileStep.addAsset({
           sourcePath: contentPath,
-          path: fileName,
+          path: virtualPath,
           data: content
         });
       }
