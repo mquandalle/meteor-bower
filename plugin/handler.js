@@ -52,23 +52,40 @@ var bowerHandler = function(compileStep, bowerTree) {
     var bowerInfosPath = path.join(bowerDirectory, pkgName, '.bower.json');
     var infos = loadJSONContent(compileStep, fs.readFileSync(bowerInfosPath));
 
-    if (! _.has(infos, "main") || ! _.isString(infos.main))
+    if (! _.has(infos, "main"))
       return;
 
-    var ext = path.extname(infos.main)
-    if (ext !== ".js") {
-      log(ext + " extension is not supported yet");
-      return;
-    }
+    if (_.isString(infos.main))
+      infos.main = [infos.main];
 
-    var contentPath = path.join(bowerDirectory, pkgName, infos.main);
-    var content = fs.readFileSync(contentPath).toString('utf8');
-    var virtualPath = path.join('packages/bower/', pkgName, infos.main);
-    compileStep.addJavaScript({
-      path: virtualPath,
-      sourcePath: contentPath,
-      data: content,
-      bare: true
+    _.each(infos.main, function(fileName) {
+      var contentPath = path.join(bowerDirectory, pkgName, fileName);
+      var virtualPath = path.join('packages/bower/', pkgName, fileName);
+      var content = fs.readFileSync(contentPath);
+      var ext = path.extname(fileName).slice(1);
+
+      // XXX It would be cool to be able to add a ressource and let Meteor use
+      //  the right source handler.
+      if (ext === "js") {
+        compileStep.addJavaScript({
+          sourcePath: contentPath,
+          path: virtualPath,
+          data: content.toString('utf8'),
+          bare: true
+        });
+      } else if (ext === "css") {
+        compileStep.addStylesheet({
+          sourcePath: contentPath,
+          path: virtualPath,
+          data: content.toString('utf8')
+        });
+      } else {
+        compileStep.addAsset({
+          sourcePath: contentPath,
+          path: fileName,
+          data: content
+        });
+      }
     });
   });
 }
