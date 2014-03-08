@@ -3,7 +3,7 @@
     "description": "Use Bower packages in your Meteor app",
     "homepage": "https://github.com/mquandalle/meteor-bower",
     "author": "Maxime Quandalle <maxime@quandalle.com>",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "git": "https://github.com/mquandalle/meteor-bower.git",
     "packages": {}
 }
