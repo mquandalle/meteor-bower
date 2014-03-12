@@ -29,6 +29,11 @@ Contributions are very welcome, whether it is for a
 [bug report](https://github.com/mquandalle/meteor-bower/issues/new), a fix or a
 new functionality proposition.
 
+## Tips
+
+If you would like to buy me a beer, I proudly accept bitcoin tips:
+[1BowerXo5THZftsQa11G7EXv5cWX7A8ZZ7](https://blockchain.info/address/1BowerXo5THZftsQa11G7EXv5cWX7A8ZZ7)
+
 ## License
 
 This code is published under the [MIT license](LICENSE).
