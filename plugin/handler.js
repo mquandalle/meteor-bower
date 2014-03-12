@@ -6,10 +6,10 @@ var fs = Npm.require("fs");
 var bowerHome = ".meteor/local/bower";
 
 log = function (message) {
-  return console.log("Bower:", message);
+  return console.log("Bower: ", message);
 };
 
-var bowerHandler = function(compileStep, bowerTree) {
+var bowerHandler = function (compileStep, bowerTree) {
 
   if (! _.isObject(bowerTree))
     compileStep.error({
@@ -18,6 +18,7 @@ var bowerHandler = function(compileStep, bowerTree) {
 
   var bowerDirectory = path.join(path.relative(process.cwd(),
                           path.dirname(compileStep._fullInputPath)), bowerHome);
+  var context = { directory: bowerDirectory };
 
   // Convert bowerTree object to an array format needed by `Bower.install`:
   //  bower: {
@@ -26,7 +27,7 @@ var bowerHandler = function(compileStep, bowerTree) {
   //  }
   //  =>
   //  ["foo#1.2.3", "foo#2.1.2"]
-  var specs = _.map(bowerTree, function(version, name) {
+  var installList = _.map(bowerTree, function (version, name) {
     if (_.isEmpty(version))
       compileStep.error({
         message: "You must provide a version number for package " + name
@@ -35,10 +36,17 @@ var bowerHandler = function(compileStep, bowerTree) {
     return name + "#" + version;
   });
 
-  // Bower handle the cache managment for us.
-  var installedPackages = Bower.install(specs, {save: true},
-                                                   {directory: bowerDirectory});
-  _.each(installedPackages, function(val, pkgName) {
+  // `localCache` use the same format than `specs`:
+  // ["foo#1.2.3", "foo#2.1.2"]
+  // If a value is present in `localCache` we remove it from the `installList`
+  var localCache = _.values(Bower.list(null, context).pkgMeta.dependencies);
+  installList = _.filter(installList, function (pkg) {
+    return localCache.indexOf(pkg) === -1;
+  });
+
+  // Installation
+  var installedPackages = Bower.install(installList, {save: true}, context);
+  _.each(installedPackages, function (val, pkgName) {
     log(pkgName + " v" + val.pkgMeta.version + " successfully installed");
   });
 
@@ -57,7 +65,7 @@ var bowerHandler = function(compileStep, bowerTree) {
     if (_.isString(infos.main))
       infos.main = [infos.main];
 
-    _.each(infos.main, function(fileName) {
+    _.each(infos.main, function (fileName) {
       var contentPath = path.join(bowerDirectory, pkgName, fileName);
       var virtualPath = path.join('packages/bower/', pkgName, fileName);
       var content = fs.readFileSync(contentPath);
@@ -87,13 +95,13 @@ var bowerHandler = function(compileStep, bowerTree) {
       }
     });
   });
-}
+};
 
 /****************/
 /* JSON Loaders */
 /****************/
 
-var loadJSONContent = function(compileStep, content) {
+var loadJSONContent = function (compileStep, content) {
   try {
     return JSON.parse(content);
   }
@@ -106,7 +114,7 @@ var loadJSONContent = function(compileStep, content) {
   }
 };
 
-var loadJSONFile = function(compileStep) {
+var loadJSONFile = function (compileStep) {
   var content = compileStep.read().toString('utf8');
   return loadJSONContent(compileStep, content);
 };
