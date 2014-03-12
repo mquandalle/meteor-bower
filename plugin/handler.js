@@ -18,7 +18,6 @@ var bowerHandler = function (compileStep, bowerTree) {
 
   var bowerDirectory = path.join(path.relative(process.cwd(),
                           path.dirname(compileStep._fullInputPath)), bowerHome);
-  var context = { directory: bowerDirectory };
 
   // Convert bowerTree object to an array format needed by `Bower.install`:
   //  bower: {
@@ -36,16 +35,18 @@ var bowerHandler = function (compileStep, bowerTree) {
     return name + "#" + version;
   });
 
-  // `localCache` use the same format than `specs`:
+  // `localCache` use the same format than `installList`:
   // ["foo#1.2.3", "foo#2.1.2"]
   // If a value is present in `localCache` we remove it from the `installList`
-  var localCache = _.values(Bower.list(null, context).pkgMeta.dependencies);
+  var localCache = Bower.list(null, {offline: true, directory: bowerDirectory});
+  localCache = _.values(localCache.pkgMeta.dependencies);
   installList = _.filter(installList, function (pkg) {
     return localCache.indexOf(pkg) === -1;
   });
 
   // Installation
-  var installedPackages = Bower.install(installList, {save: true}, context);
+  var installedPackages = Bower.install(installList, {save: true},
+                                                   {directory: bowerDirectory});
   _.each(installedPackages, function (val, pkgName) {
     log(pkgName + " v" + val.pkgMeta.version + " successfully installed");
   });
