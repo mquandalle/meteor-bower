@@ -22,17 +22,26 @@ var bowerHandler = function (compileStep, bowerTree) {
   // Convert bowerTree object to an array format needed by `Bower.install`:
   //  bower: {
   //    "foo": "1.2.3",
-  //    "bar": "2.1.2"
+  //    "bar": {
+  //      source: "owner/repo"
+  //      version: "2.1.2"
+  //     }
   //  }
   //  =>
-  //  ["foo#1.2.3", "foo#2.1.2"]
-  var installList = _.map(bowerTree, function (version, name) {
-    if (_.isEmpty(version))
+  //  ["foo#1.2.3", "bar=owner/repo#2.1.2"]
+  var installList = _.map(bowerTree, function (definition, name) {
+    if (_.isString(definition))
+      definition = { version: definition };
+
+    if (_.isEmpty(definition.version))
       compileStep.error({
         message: "You must provide a version number for package " + name
       });
 
-    return name + "#" + version;
+    if (_.has(definition, "source"))
+      name = name + "=" + definition.source;
+
+    return name + "#" + definition.version;
   });
 
   // `localCache` use the same format than `installList`:

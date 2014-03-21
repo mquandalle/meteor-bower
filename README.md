@@ -20,7 +20,36 @@ You now have `select2` and `backbone` libraries in your client application!
 > To ensure that other people running your app will always get the exact same
 dependencies you must always provide a version number.
 
-If you don't want to use the `smart.json` file for that purpose, you can use a
+If the package you want to use isn't published on
+[bower.io](http://bower.io/search/), you can specify a source with the following
+syntax:
+
+```json
+{
+  "packages": {
+    "bower": {}
+  },
+  "bower": {
+    "chui": {
+      "source": "sourcebits-robertbiggs/bower-chui",
+      "version": "3.5.2"
+    }
+  }
+}
+```
+
+Where `source` can be either:
+
+* A name that maps to a package registered with Bower (default), e.g, `jquery`.
+* A public remote Git or Subversion endpoint, e.g.,
+`git://github.com/someone/some-package.git`.
+* A private Git or Subversion repository using *ssh* to authenticate with the
+user's ssh public/private keys, e.g., `git@github.com:someone/some-package.git`.
+* A shorthand endpoint, e.g., `someone/some-package` (defaults to GitHub).
+* A local endpoint, i.e., a folder that's a Git or Subversion repository.
+* A URL to a file, including zip and tar files.
+
+> If you don't want to use the `smart.json` file for that purpose, you can use a
 dedicated file named `bower.json`.
 
 ## Contributing
