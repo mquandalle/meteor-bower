@@ -65,7 +65,7 @@ var bowerHandler = function (compileStep, bowerTree) {
   // XXX If a package is present more than once (potentialy in different
   //  versions from different places), we should only include it once with the
   //  good version. Hopefully the `constraint-solver` package will help.
-  _.each(bowerTree, function (version, pkgName) {
+  _.each(bowerTree, function (options, pkgName) {
     var bowerInfosPath = path.join(bowerDirectory, pkgName, '.bower.json');
     var infos = loadJSONContent(compileStep, fs.readFileSync(bowerInfosPath));
 
@@ -75,7 +75,13 @@ var bowerHandler = function (compileStep, bowerTree) {
     if (_.isString(infos.main))
       infos.main = [infos.main];
 
-    _.each(infos.main, function (fileName) {
+    toInclude = [];
+    if (infos.main)
+      toInclude = toInclude.concat(infos.main);
+    if (options.additionalFiles)
+      toInclude = toInclude.concat(options.additionalFiles);
+
+    _.each(toInclude, function (fileName) {
       var contentPath = path.join(bowerDirectory, pkgName, fileName);
       var virtualPath = path.join('packages/bower/', pkgName, fileName);
       var content = fs.readFileSync(contentPath);

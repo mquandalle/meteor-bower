@@ -49,6 +49,26 @@ user's ssh public/private keys, e.g., `git@github.com:someone/some-package.git`.
 * A local endpoint, i.e., a folder that's a Git or Subversion repository.
 * A URL to a file, including zip and tar files.
 
+If the package that you want to use doesn't have a main field in its bower.json
+or you want to include additional files, you may specify those using
+`additionalFiles`:
+
+```json
+{
+  "packages": {
+    "bower": {}
+  },
+  "bower": {
+    "elastic.js": {
+      "version": "~1.1.1",
+      "additionalFiles": [
+        "dist/elastic-jquery-client.js"
+      ]
+    }
+  }
+}
+```
+
 > If you don't want to use the `smart.json` file for that purpose, you can use a
 dedicated file named `bower.json`.
 
