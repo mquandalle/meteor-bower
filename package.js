@@ -1,6 +1,6 @@
 Package.describe({
   summary: "Use Bower packages in your Meteor app",
-  version: "0.1.6"
+  version: "0.1.7"
 });
 
 Package._transitional_registerBuildPlugin({
@@ -14,7 +14,7 @@ Package._transitional_registerBuildPlugin({
     "plugin/handler.js",
   ],
   npmDependencies: {
-    "bower": "1.2.8",
+    "bower": "1.3.2",
   }
 });
 
