@@ -39,7 +39,7 @@ var bowerHandler = function (compileStep, bowerTree) {
       });
 
     if (_.has(definition, "source"))
-      name = name + "=" + definition.source;
+      name += "=" + definition.source;
 
     return name + "#" + definition.version;
   });
@@ -158,15 +158,11 @@ Plugin.registerSourceHandler("bower.json", function (compileStep) {
 
   var bowerTree = loadJSONFile(compileStep);
 
-  var realTree;
-
   // bower.json files have additional metadata beyond what we care about (dependancies)
   // but previous versions of this package assumed it was a flatter list
   // so allow both
   if (_.has(bowerTree, "dependencies"))
-  	realTree = bowerTree.dependencies;
-  else
-  	realTree = bowerTree;
+    bowerTree = bowerTree.dependencies;
 
-  return bowerHandler(compileStep, realTree);
+  return bowerHandler(compileStep, bowerTree);
 });
