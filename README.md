@@ -74,11 +74,16 @@ dedicated file named `bower.json`.
 
 # Referring to Bower downloaded assets
 
-Bower for Meteor automatically adds the appropriate HTML tags to include your Bower packages. In our example above we can *just start using* `select2` widgets and styles will be set correctly.
+Bower for Meteor automatically adds the appropriate HTML tags to include your
+Bower packages. In our example above we can *just start using* `select2` widgets
+ and styles will be set correctly.
 
 If you're curious just look at the HTML source of a rendered page!
 
-Compare this to Bower out of the box, where you need to either manually reference the included files or use something like [grunt-bower-install](https://github.com/stephenplusplus/grunt-bower-install) to reference them. 
+Compare this to Bower out of the box, where you need to either manually
+reference the included files or use something like
+[grunt-bower-install](https://github.com/stephenplusplus/grunt-bower-install)
+to reference them.
 
 
 ## Contributing
