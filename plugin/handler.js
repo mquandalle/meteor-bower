@@ -82,11 +82,14 @@ var bowerHandler = function (compileStep, bowerTree) {
     if (options.additionalFiles) {
       var pkgPath = path.join(bowerDirectory, pkgName);
 
-      _.each(options.additionalFiles, function(pattern) {
-        var matches = glob.sync(pattern, { cwd: pkgPath });
+      if (_.isString(options.additionalFiles))
+        options.additionalFiles = [options.additionalFiles];
 
-        toInclude = toInclude.concat(matches);
+      var matches = _.map(options.additionalFiles, function(pattern) {
+        return glob.sync(pattern, { cwd: pkgPath });
       });
+
+      toInclude = _.uniq(toInclude.concat(_.flatten(matches)));
     }
 
     _.each(toInclude, function (fileName) {
