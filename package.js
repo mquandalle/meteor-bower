@@ -15,6 +15,7 @@ Package._transitional_registerBuildPlugin({
   ],
   npmDependencies: {
     "bower": "1.3.3",
+    "glob": "3.2.9"
   }
 });
 

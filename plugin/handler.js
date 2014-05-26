@@ -1,5 +1,6 @@
 var path = Npm.require("path");
 var fs = Npm.require("fs");
+var glob = Npm.require("glob");
 
 // Install bower components into the local meteor directory.
 // XXX Should we find a better host?
@@ -69,7 +70,7 @@ var bowerHandler = function (compileStep, bowerTree) {
     var bowerInfosPath = path.join(bowerDirectory, pkgName, '.bower.json');
     var infos = loadJSONContent(compileStep, fs.readFileSync(bowerInfosPath));
 
-    if (! _.has(infos, "main"))
+    if (! _.has(infos, "main") && ! options.additionalFiles)
       return;
 
     if (_.isString(infos.main))
@@ -78,8 +79,18 @@ var bowerHandler = function (compileStep, bowerTree) {
     toInclude = [];
     if (infos.main)
       toInclude = toInclude.concat(infos.main);
-    if (options.additionalFiles)
-      toInclude = toInclude.concat(options.additionalFiles);
+    if (options.additionalFiles) {
+      var pkgPath = path.join(bowerDirectory, pkgName);
+
+      if (_.isString(options.additionalFiles))
+        options.additionalFiles = [options.additionalFiles];
+
+      var matches = _.map(options.additionalFiles, function(pattern) {
+        return glob.sync(pattern, { cwd: pkgPath });
+      });
+
+      toInclude = _.uniq(toInclude.concat(_.flatten(matches)));
+    }
 
     _.each(toInclude, function (fileName) {
       var contentPath = path.join(bowerDirectory, pkgName, fileName);
