@@ -55,11 +55,13 @@ var bowerHandler = function (compileStep, bowerTree) {
   });
 
   // Installation
-  var installedPackages = Bower.install(installList, {save: true},
-                                                   {directory: bowerDirectory});
-  _.each(installedPackages, function (val, pkgName) {
-    log(pkgName + " v" + val.pkgMeta.version + " successfully installed");
-  });
+  if (installList.length) {
+    var installedPackages = Bower.install(installList, {save: true},
+                                                     {directory: bowerDirectory});
+    _.each(installedPackages, function (val, pkgName) {
+      log(pkgName + " v" + val.pkgMeta.version + " successfully installed");
+    }); 
+  }
 
   // Loop over packages, look at each `.bower.json` attribute `main` and
   //  add the associated file to the Meteor bundle.
