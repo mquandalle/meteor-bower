@@ -1,6 +1,6 @@
 Package.describe({
   summary: "Use Bower packages in your Meteor app",
-  version: "0.1.9"
+  version: "0.1.10"
 });
 
 Package._transitional_registerBuildPlugin({
