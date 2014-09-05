@@ -60,7 +60,7 @@ var bowerHandler = function (compileStep, bowerTree) {
                                                      {directory: bowerDirectory});
     _.each(installedPackages, function (val, pkgName) {
       log(pkgName + " v" + val.pkgMeta.version + " successfully installed");
-    }); 
+    });
   }
 
   // Loop over packages, look at each `.bower.json` attribute `main` and
@@ -161,11 +161,7 @@ Plugin.registerSourceHandler("json", null);
 
 // We look at the field "bower" of the `smart.json` file.
 // XXX Remove when atmosphere is merged in Meteor-core
-Plugin.registerSourceHandler("smart.json", function (compileStep) {
-  // XXX Code copied from `packages/templating/plugin/compile-template.js:6`
-  if (! compileStep.arch.match(/^browser(\.|$)/))
-    return;
-
+Plugin.registerSourceHandler("smart.json", {archMatching: "web"}, function (compileStep) {
   var bowerTree = loadJSONFile(compileStep);
   if (! _.has(bowerTree, "bower"))
     return;
@@ -173,11 +169,7 @@ Plugin.registerSourceHandler("smart.json", function (compileStep) {
   return bowerHandler(compileStep, bowerTree.bower);
 });
 
-Plugin.registerSourceHandler("bower.json", function (compileStep) {
-  // XXX Code copied from `packages/templating/plugin/compile-template.js:6`
-  if (! compileStep.arch.match(/^browser(\.|$)/))
-    return;
-
+Plugin.registerSourceHandler("bower.json", {archMatching: "web"}, function (compileStep) {
   var bowerTree = loadJSONFile(compileStep);
 
   // bower.json files have additional metadata beyond what we care about (dependancies)
