@@ -39,10 +39,11 @@ var bowerHandler = function (compileStep, bowerTree) {
         message: "You must provide a version number for package " + name
       });
 
-    if (_.has(definition, "source"))
-      name += "=" + definition.source;
-
-    return name + "#" + definition.version;
+    if (definition.version.indexOf("/") != -1){
+        return name + "=" + definition.version;
+    }else{
+        return name + "#" + definition.version;
+    }
   });
 
   // `localCache` use the same format than `installList`:
@@ -159,15 +160,6 @@ var loadJSONFile = function (compileStep) {
 //  This is a Meteor bug.
 Plugin.registerSourceHandler("json", null);
 
-// We look at the field "bower" of the `smart.json` file.
-// XXX Remove when atmosphere is merged in Meteor-core
-Plugin.registerSourceHandler("smart.json", {archMatching: "web"}, function (compileStep) {
-  var bowerTree = loadJSONFile(compileStep);
-  if (! _.has(bowerTree, "bower"))
-    return;
-
-  return bowerHandler(compileStep, bowerTree.bower);
-});
 
 Plugin.registerSourceHandler("bower.json", {archMatching: "web"}, function (compileStep) {
   var bowerTree = loadJSONFile(compileStep);
