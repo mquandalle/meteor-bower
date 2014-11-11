@@ -1,8 +1,8 @@
 Package.describe({
   summary: "Use Bower packages in your Meteor app",
-  name: "mquandalle:bower",
-  git: "https://github.com/mquandalle/meteor-bower.git",
-  version: "0.1.11"
+  name: "kidovate:bower",
+  git: "https://github.com/kidovate/meteor-bower.git",
+  version: "0.1.13"
 });
 
 Package._transitional_registerBuildPlugin({
@@ -16,7 +16,7 @@ Package._transitional_registerBuildPlugin({
     "plugin/handler.js",
   ],
   npmDependencies: {
-    "bower": "1.3.11",
+    "bower": "1.3.12",
     "glob": "3.2.9"
   }
 });
