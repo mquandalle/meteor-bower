@@ -159,16 +159,6 @@ var loadJSONFile = function (compileStep) {
 //  This is a Meteor bug.
 Plugin.registerSourceHandler("json", null);
 
-// We look at the field "bower" of the `smart.json` file.
-// XXX Remove when atmosphere is merged in Meteor-core
-Plugin.registerSourceHandler("smart.json", {archMatching: "web"}, function (compileStep) {
-  var bowerTree = loadJSONFile(compileStep);
-  if (! _.has(bowerTree, "bower"))
-    return;
-
-  return bowerHandler(compileStep, bowerTree.bower);
-});
-
 Plugin.registerSourceHandler("bower.json", {archMatching: "web"}, function (compileStep) {
   var bowerTree = loadJSONFile(compileStep);
 
