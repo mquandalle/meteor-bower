@@ -21,18 +21,19 @@ var bowerHandler = function (compileStep, bowerTree) {
                           path.dirname(compileStep._fullInputPath)), bowerHome);
 
   // Convert bowerTree object to an array format needed by `Bower.install`:
-  //  bower: {
+  //  dependencies: {
   //    "foo": "1.2.3",
-  //    "bar": {
-  //      source: "owner/repo"
-  //      version: "2.1.2"
-  //     }
+  //    "bar": "owner/repo#2.1.2"
   //  }
   //  =>
   //  ["foo#1.2.3", "bar=owner/repo#2.1.2"]
   var installList = _.map(bowerTree, function (definition, name) {
     if (_.isString(definition))
-      definition = { version: definition };
+    {
+      var repo = definition.split("#");
+      if( repo.length>1 ) definition = {source: repo[0], version: repo[1]};
+      else definition = { version: definition };
+    }
 
     if (_.isEmpty(definition.version))
       compileStep.error({
