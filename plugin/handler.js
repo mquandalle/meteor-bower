@@ -152,6 +152,23 @@ var loadJSONFile = function (compileStep) {
   return loadJSONContent(compileStep, content);
 };
 
+var parseJSONFile = function(file) {
+  try {
+    return JSON.parse(fs.readFileSync(file, 'utf8'));
+  }
+  catch (e) {
+    console.log( e.message );
+  }
+
+  return null;
+};
+
+//
+// Parse ./.bowerrc file if exists in the project's root folder.
+//
+var bowerrc = parseJSONFile('./.bowerrc');
+if(_.has(bowerrc, "directory")) bowerHome = bowerrc.directory;
+
 /*******************/
 /* Source Handlers */
 /*******************/
