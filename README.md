@@ -1,7 +1,7 @@
 # Bower for Meteor
 
 [Bower](http://bower.io/) is a popular repository of client-side JavaScript
-libraries. In your `bower.json` you can specify a dictionary of bower packages:
+libraries. In the root of your Meteor app create the file `bower.json` and fill it out like so:
 
 ```json
 {
