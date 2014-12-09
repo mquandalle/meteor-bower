@@ -57,8 +57,9 @@ var bowerHandler = function (compileStep, bowerTree) {
 
   // Installation
   if (installList.length) {
-    var installedPackages = Bower.install(installList, {save: true},
-                                                     {directory: bowerDirectory});
+    var installedPackages = Bower.install(installList, {save: true}, {directory: bowerDirectory}, function(err, res){
+      if( err ) log(err);
+    });
     _.each(installedPackages, function (val, pkgName) {
       log(pkgName + " v" + val.pkgMeta.version + " successfully installed");
     });
@@ -157,7 +158,7 @@ var parseJSONFile = function(file) {
     return JSON.parse(fs.readFileSync(file, 'utf8'));
   }
   catch (e) {
-    console.log( e.message );
+    log( e.message );
   }
 
   return null;
