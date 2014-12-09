@@ -20,6 +20,15 @@ You now have `select2` and `backbone` libraries in your client application!
 > To ensure that other people running your app will always get the exact same
 dependencies you must always provide a version number.
 
+You can also add a `.bowerrc` file in the project root directory with following content:
+```
+{
+  "directory" : ".meteor/local/bower"
+}
+```
+
+Then you will be able to also use `bower install <package> --save` command
+
 # Referring to Bower downloaded assets
 
 Bower for Meteor automatically adds the appropriate HTML tags to include your
