@@ -1,17 +1,17 @@
 # Bower for Meteor
 
 [Bower](http://bower.io/) is a popular repository of client-side JavaScript
-libraries. In your `smart.json` you can specify a dictionary of bower packages:
+libraries. In the root of your Meteor app create the file `bower.json` and fill it out like so:
 
 ```json
 {
-  "packages": {
-    "bower": {}
-  },
-  "bower": {
+  "name": "my-app",
+  "version": "0.0.1",
+  "dependencies": {
     "select2": "3.4.5",
     "backbone": "1.1.0"
-  }
+  },
+  "private": true
 }
 ```
 
@@ -20,57 +20,14 @@ You now have `select2` and `backbone` libraries in your client application!
 > To ensure that other people running your app will always get the exact same
 dependencies you must always provide a version number.
 
-If the package you want to use isn't published on
-[bower.io](http://bower.io/search/), you can specify a source with the following
-syntax:
-
-```json
+You can also add a `.bowerrc` file in the project root directory with following content:
+```
 {
-  "packages": {
-    "bower": {}
-  },
-  "bower": {
-    "chui": {
-      "source": "sourcebits-robertbiggs/bower-chui",
-      "version": "3.5.2"
-    }
-  }
+  "directory" : ".meteor/local/bower"
 }
 ```
 
-Where `source` can be either:
-
-* A name that maps to a package registered with Bower (default), e.g, `jquery`.
-* A public remote Git or Subversion endpoint, e.g.,
-`git://github.com/someone/some-package.git`.
-* A private Git or Subversion repository using *ssh* to authenticate with the
-user's ssh public/private keys, e.g., `git@github.com:someone/some-package.git`.
-* A shorthand endpoint, e.g., `someone/some-package` (defaults to GitHub).
-* A local endpoint, i.e., a folder that's a Git or Subversion repository.
-* A URL to a file, including zip and tar files.
-
-If the package that you want to use doesn't have a main field in its bower.json
-or you want to include additional files, you may specify those using
-`additionalFiles`:
-
-```json
-{
-  "packages": {
-    "bower": {}
-  },
-  "bower": {
-    "elastic.js": {
-      "version": "~1.1.1",
-      "additionalFiles": [
-        "dist/elastic-jquery-client.js"
-      ]
-    }
-  }
-}
-```
-
-> If you don't want to use the `smart.json` file for that purpose, you can use a
-dedicated file named `bower.json`.
+Then you will be able to also use `bower install <package> --save` command
 
 # Referring to Bower downloaded assets
 
