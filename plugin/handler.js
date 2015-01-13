@@ -57,9 +57,7 @@ var bowerHandler = function (compileStep, bowerTree) {
 
   // Installation
   if (installList.length) {
-    var installedPackages = Bower.install(installList, {save: true}, {directory: bowerDirectory}, function(err, res){
-      if( err ) log(err);
-    });
+    var installedPackages = Bower.install(installList, {save: true}, {directory: bowerDirectory});
     _.each(installedPackages, function (val, pkgName) {
       log(pkgName + " v" + val.pkgMeta.version + " successfully installed");
     });
@@ -157,9 +155,7 @@ var parseJSONFile = function(file) {
   try {
     return JSON.parse(fs.readFileSync(file, 'utf8'));
   }
-  catch (e) {
-    log( e.message );
-  }
+  catch (e) { }
 
   return null;
 };
@@ -168,7 +164,7 @@ var parseJSONFile = function(file) {
 // Parse ./.bowerrc file if exists in the project's root folder.
 //
 var bowerrc = parseJSONFile('./.bowerrc');
-if(_.has(bowerrc, "directory")) bowerHome = bowerrc.directory;
+if(bowerrc && _.has(bowerrc, "directory")) bowerHome = bowerrc.directory;
 
 /*******************/
 /* Source Handlers */
