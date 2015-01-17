@@ -21,18 +21,19 @@ var bowerHandler = function (compileStep, bowerTree) {
                           path.dirname(compileStep._fullInputPath)), bowerHome);
 
   // Convert bowerTree object to an array format needed by `Bower.install`:
-  //  bower: {
+  //  dependencies: {
   //    "foo": "1.2.3",
-  //    "bar": {
-  //      source: "owner/repo"
-  //      version: "2.1.2"
-  //     }
+  //    "bar": "owner/repo#2.1.2"
   //  }
   //  =>
   //  ["foo#1.2.3", "bar=owner/repo#2.1.2"]
   var installList = _.map(bowerTree, function (definition, name) {
     if (_.isString(definition))
-      definition = { version: definition };
+    {
+      var repo = definition.split("#");
+      if( repo.length>1 ) definition = {source: repo[0], version: repo[1]};
+      else definition = { version: definition };
+    }
 
     if (_.isEmpty(definition.version))
       compileStep.error({
@@ -56,8 +57,7 @@ var bowerHandler = function (compileStep, bowerTree) {
 
   // Installation
   if (installList.length) {
-    var installedPackages = Bower.install(installList, {save: true},
-                                                     {directory: bowerDirectory});
+    var installedPackages = Bower.install(installList, {save: true}, {directory: bowerDirectory});
     _.each(installedPackages, function (val, pkgName) {
       log(pkgName + " v" + val.pkgMeta.version + " successfully installed");
     });
@@ -150,6 +150,21 @@ var loadJSONFile = function (compileStep) {
   var content = compileStep.read().toString('utf8');
   return loadJSONContent(compileStep, content);
 };
+
+var parseJSONFile = function(file) {
+  try {
+    return JSON.parse(fs.readFileSync(file, 'utf8'));
+  }
+  catch (e) { }
+
+  return null;
+};
+
+//
+// Parse ./.bowerrc file if exists in the project's root folder.
+//
+var bowerrc = parseJSONFile('./.bowerrc');
+if(bowerrc && _.has(bowerrc, "directory")) bowerHome = bowerrc.directory;
 
 /*******************/
 /* Source Handlers */
