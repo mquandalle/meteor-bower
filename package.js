@@ -5,15 +5,15 @@ Package.describe({
   version: "0.1.12"
 });
 
-Package._transitional_registerBuildPlugin({
+Package.registerBuildPlugin({
   name: "bower",
   use: [
     "meteor",
-    "underscore",
+    "underscore@1.0.0"
   ],
   sources: [
     "plugin/bower.js",
-    "plugin/handler.js",
+    "plugin/handler.js"
   ],
   npmDependencies: {
     "bower": "1.3.12",
