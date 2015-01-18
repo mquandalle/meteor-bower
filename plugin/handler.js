@@ -14,7 +14,7 @@ var bowerHandler = function (compileStep, bowerTree) {
 
   if (! _.isObject(bowerTree))
     compileStep.error({
-      message: "Bower list must be a dictionnary in " + compileStep.inputPath
+      message: "Bower list must be a dictionary in " + compileStep.inputPath
     });
 
   var bowerDirectory = path.join(path.relative(process.cwd(),
@@ -23,27 +23,22 @@ var bowerHandler = function (compileStep, bowerTree) {
   // Convert bowerTree object to an array format needed by `Bower.install`:
   //  dependencies: {
   //    "foo": "1.2.3",
-  //    "bar": "owner/repo#2.1.2"
+  //    "bar": "owner/repo#2.1.2",
+  //    "foobar": "git://github.com/owner/repo#branchortag"  
   //  }
   //  =>
-  //  ["foo#1.2.3", "bar=owner/repo#2.1.2"]
+  //  ["foo#1.2.3", "bar=owner/repo#2.1.2", "foobar=git://github.com/owner/repo#branchortag"]
+  //  Ref: https://github.com/bower/bower.json-spec#dependencies
   var installList = _.map(bowerTree, function (definition, name) {
-    if (_.isString(definition))
-    {
-      var repo = definition.split("#");
-      if( repo.length>1 ) definition = {source: repo[0], version: repo[1]};
-      else definition = { version: definition };
-    }
-
-    if (_.isEmpty(definition.version))
+    if (!_.isString(definition))
       compileStep.error({
-        message: "You must provide a version number for package " + name
+        message: "Definitions in the bower list must be strings. " + compileStep.inputPath
       });
 
-    if (_.has(definition, "source"))
-      name += "=" + definition.source;
-
-    return name + "#" + definition.version;
+    if(definition.indexOf('/') != -1)
+      return name + "=" + definition;
+    else
+      return name + "#" + definition;
   });
 
   // `localCache` use the same format than `installList`:
