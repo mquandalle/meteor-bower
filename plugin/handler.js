@@ -24,7 +24,7 @@ var bowerHandler = function (compileStep, bowerTree) {
   //  dependencies: {
   //    "foo": "1.2.3",
   //    "bar": "owner/repo#2.1.2",
-  //    "foobar": "git://github.com/owner/repo#branchortag"  
+  //    "foobar": "git://github.com/owner/repo#branchortag"
   //  }
   //  =>
   //  ["foo#1.2.3", "bar=owner/repo#2.1.2", "foobar=git://github.com/owner/repo#branchortag"]
@@ -35,7 +35,7 @@ var bowerHandler = function (compileStep, bowerTree) {
         message: "Definitions in the bower list must be strings. " + compileStep.inputPath
       });
 
-    if(definition.indexOf('/') != -1)
+    if (definition.indexOf('/') != -1)
       return name + "=" + definition;
     else
       return name + "#" + definition;
@@ -159,7 +159,8 @@ var parseJSONFile = function(file) {
 // Parse ./.bowerrc file if exists in the project's root folder.
 //
 var bowerrc = parseJSONFile('./.bowerrc');
-if(bowerrc && _.has(bowerrc, "directory")) bowerHome = bowerrc.directory;
+if (bowerrc && _.has(bowerrc, "directory"))
+  bowerHome = bowerrc.directory;
 
 /*******************/
 /* Source Handlers */
