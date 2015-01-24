@@ -1,7 +1,7 @@
 # Bower for Meteor
 
-[Bower](http://bower.io/) is a popular repository of client-side JavaScript
-libraries. In the root of your Meteor app create the file `bower.json` and fill it out like so:
+[Bower.io](http://bower.io/) is a popular repository of client-side JavaScript
+libraries. In the root of your Meteor app, create a `bower.json` file:
 
 ```json
 {
@@ -15,39 +15,31 @@ libraries. In the root of your Meteor app create the file `bower.json` and fill 
 }
 ```
 
-You now have `select2` and `backbone` libraries in your client application!
+The next time you run `meteor`, the `select2` and `backbone` libraries will be 
+downloaded, and the appropriate HTML tags to include those libraries will 
+automatically be added to your app. So you can *just start using* `select2` 
+widgets, and styles will be set correctly. (If you're curious just look at the 
+HTML source of a rendered page!)
 
-> To ensure that other people running your app will always get the exact same
-dependencies you must always provide a version number.
+Compare this to just using the `bower` command, where you need to either manually
+reference the included files or use something like
+[grunt-bower-install](https://github.com/stephenplusplus/grunt-bower-install)
+to reference them.
 
-You can also add a `.bowerrc` file in the project root directory with following content:
+If you want to use the `bower install <package> --save` command, you can add this `.bowerrc` file in the project root directory:
+
 ```
 {
   "directory" : ".meteor/local/bower"
 }
 ```
 
-Then you will be able to also use `bower install <package> --save` command
-
-# Referring to Bower downloaded assets
-
-Bower for Meteor automatically adds the appropriate HTML tags to include your
-Bower packages. In our example above we can *just start using* `select2` widgets
- and styles will be set correctly.
-
-If you're curious just look at the HTML source of a rendered page!
-
-Compare this to Bower out of the box, where you need to either manually
-reference the included files or use something like
-[grunt-bower-install](https://github.com/stephenplusplus/grunt-bower-install)
-to reference them.
-
+If you need to reference the raw files (eg Polymer components in html files), you can set a different directory, eg "public/bower". TODO: allow multiple installation directories #49.
 
 ## Contributing
 
-Contributions are very welcome, whether it is for a
-[bug report](https://github.com/mquandalle/meteor-bower/issues/new), a fix or a
-new functionality proposition.
+Contributions are very welcome, whether it is a
+[bug report](https://github.com/mquandalle/meteor-bower/issues/new) or a PR with a fix or enhancement. 
 
 ## Tips
 
