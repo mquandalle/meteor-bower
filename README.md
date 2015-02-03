@@ -1,7 +1,7 @@
 # Bower for Meteor
 
 [Bower.io](http://bower.io/) is a popular repository of client-side JavaScript
-libraries. In the root of your Meteor app, create a `bower.json` file:
+libraries. Create a `bower.json` file:
 
 ```json
 {
@@ -14,6 +14,8 @@ libraries. In the root of your Meteor app, create a `bower.json` file:
   "private": true
 }
 ```
+
+If you want to use a bower library at script load time (outside of a `Meteor.startup` block, template handler, event, etc), you have to place the `bower.json` file so that it loads first (see [Meteor load order](http://stackoverflow.com/questions/10693113/how-do-i-change-the-order-in-which-meteor-loads-javascript-files)). Take the deepest directory you have inside `[project root]/lib/`, add a `bower` directory, and put `bower.json` there. So for example, if you currently have no directories in `lib/`, then you can do `lib/bower/bower.json`, but if your current structure is `lib/foo/bar/`, then you should do `lib/foo/bar/bower/bower.json`. 
 
 The next time you run `meteor`, the `select2` and `backbone` libraries will be 
 downloaded, and the appropriate HTML tags to include those libraries will 
