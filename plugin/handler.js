@@ -52,7 +52,7 @@ var bowerHandler = function (compileStep, bowerTree) {
 
   // Installation
   if (installList.length) {
-    var installedPackages = Bower.install(installList, {save: true}, {directory: bowerDirectory});
+    var installedPackages = Bower.install(installList, {save: true, forceLatest: true}, {directory: bowerDirectory});
     _.each(installedPackages, function (val, pkgName) {
       log(pkgName + " v" + val.pkgMeta.version + " successfully installed");
     });
