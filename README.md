@@ -21,7 +21,7 @@ The next time you run `meteor`, the `select2` and `backbone` libraries will be
 downloaded, and the appropriate HTML tags to include those libraries will 
 automatically be added to your app. So you can *just start using* `select2` 
 widgets, and styles will be set correctly. (If you're curious just look at the 
-HTML source of a rendered page!)
+HTML source of a rendered page!) We use the `main` section of the library's `bower.json` file to determine which files should be loaded. If the package you're trying to add doesn't use the `main` section, you must reference the files manually. @leebenson recommends using [meteor-preloader](https://github.com/MiroHibler/meteor-preloader) to help with that.
 
 Compare this to just using the `bower` command, where you need to either manually
 reference the included files or use something like
