@@ -5,7 +5,7 @@ Package.describe({
   // This matches the upstream version. If you want to publish a new version of
   // the package without pulling a new upstream version, you should call it
   // '1.3.12_1'.
-  version: "1.3.12"
+  version: "1.3.12_1"
 });
 
 Package.registerBuildPlugin({
