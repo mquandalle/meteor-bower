@@ -10,7 +10,7 @@ log = function (message) {
   return console.log("Bower: ", message);
 };
 
-var bowerHandler = function (compileStep, bowerTree) {
+var bowerHandler = function (compileStep, bowerTree, originalTree) {
 
   if (! _.isObject(bowerTree))
     compileStep.error({
@@ -68,6 +68,11 @@ var bowerHandler = function (compileStep, bowerTree) {
   _.each(bowerTree, function (options, pkgName) {
     var bowerInfosPath = path.join(bowerDirectory, pkgName, '.bower.json');
     var infos = loadJSONContent(compileStep, fs.readFileSync(bowerInfosPath));
+
+    // Bower overrides support
+    if (originalTree.overrides && originalTree.overrides[pkgName]) {
+      _.extend(infos, originalTree.overrides[pkgName]);
+    }
 
     if (! _.has(infos, "main") && ! options.additionalFiles)
       return;
@@ -174,6 +179,7 @@ Plugin.registerSourceHandler("json", null);
 
 Plugin.registerSourceHandler("bower.json", {archMatching: "web"}, function (compileStep) {
   var bowerTree = loadJSONFile(compileStep);
+  var originalTree = bowerTree;
 
   // bower.json files have additional metadata beyond what we care about (dependancies)
   // but previous versions of this package assumed it was a flatter list
@@ -181,5 +187,5 @@ Plugin.registerSourceHandler("bower.json", {archMatching: "web"}, function (comp
   if (_.has(bowerTree, "dependencies"))
     bowerTree = bowerTree.dependencies;
 
-  return bowerHandler(compileStep, bowerTree);
+  return bowerHandler(compileStep, bowerTree, originalTree);
 });
