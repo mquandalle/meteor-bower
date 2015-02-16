@@ -17,6 +17,18 @@ var bowerHandler = function (compileStep, bowerTree) {
       message: "Bower list must be a dictionary in " + compileStep.inputPath
     });
 
+  mapBowerDefinitions = function (definition, name) {
+    if (!_.isString(definition))
+      compileStep.error({
+        message: "Definitions in the bower list must be strings. " + compileStep.inputPath
+      });
+
+    if (definition.indexOf('/') != -1)
+      return name + "=" + definition;
+    else
+      return name + "#" + definition;
+  };
+
   var bowerDirectory = path.join(path.relative(process.cwd(),
                           path.dirname(compileStep._fullInputPath)), bowerHome);
 
@@ -29,23 +41,13 @@ var bowerHandler = function (compileStep, bowerTree) {
   //  =>
   //  ["foo#1.2.3", "bar=owner/repo#2.1.2", "foobar=git://github.com/owner/repo#branchortag"]
   //  Ref: https://github.com/bower/bower.json-spec#dependencies
-  var installList = _.map(bowerTree, function (definition, name) {
-    if (!_.isString(definition))
-      compileStep.error({
-        message: "Definitions in the bower list must be strings. " + compileStep.inputPath
-      });
-
-    if (definition.indexOf('/') != -1)
-      return name + "=" + definition;
-    else
-      return name + "#" + definition;
-  });
+  var installList = _.map(bowerTree, mapBowerDefinitions);
 
   // `localCache` use the same format than `installList`:
   // ["foo#1.2.3", "foo#2.1.2"]
   // If a value is present in `localCache` we remove it from the `installList`
   var localCache = Bower.list(null, {offline: true, directory: bowerDirectory});
-  localCache = _.values(localCache.pkgMeta.dependencies);
+  localCache = _.map(localCache.pkgMeta.dependencies, mapBowerDefinitions);
   installList = _.filter(installList, function (pkg) {
     return localCache.indexOf(pkg) === -1;
   });
@@ -54,7 +56,7 @@ var bowerHandler = function (compileStep, bowerTree) {
   if (installList.length) {
     var installedPackages = Bower.install(installList, {save: true, forceLatest: true}, {directory: bowerDirectory});
     _.each(installedPackages, function (val, pkgName) {
-      log(pkgName + " v" + val.pkgMeta.version + " successfully installed");
+       log(pkgName + " v" + val.pkgMeta.version + " successfully installed");
     });
   }
 
