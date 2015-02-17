@@ -12,9 +12,9 @@ log = function (message) {
 
 var bowerHandler = function (compileStep, bowerTree, originalTree) {
 
-  if (! _.isObject(bowerTree))
+  if (! _.isObject(bowerTree.dependencies))
     compileStep.error({
-      message: "Bower list must be a dictionary in " + compileStep.inputPath
+      message: "Bower dependencies list must be a dictionary in " + compileStep.inputPath
     });
 
   mapBowerDefinitions = function (definition, name) {
@@ -41,7 +41,7 @@ var bowerHandler = function (compileStep, bowerTree, originalTree) {
   //  =>
   //  ["foo#1.2.3", "bar=owner/repo#2.1.2", "foobar=git://github.com/owner/repo#branchortag"]
   //  Ref: https://github.com/bower/bower.json-spec#dependencies
-  var installList = _.map(bowerTree, mapBowerDefinitions);
+  var installList = _.map(bowerTree.dependencies, mapBowerDefinitions);
 
   // Installation
   if (installList.length) {
@@ -70,7 +70,7 @@ var bowerHandler = function (compileStep, bowerTree, originalTree) {
   // XXX If a package is present more than once (potentialy in different
   //  versions from different places), we should only include it once with the
   //  good version. Hopefully the `constraint-solver` package will help.
-  _.each(bowerTree, function (options, pkgName) {
+  _.each(bowerTree.dependencies, function (options, pkgName) {
     var bowerInfosPath = path.join(bowerDirectory, pkgName, '.bower.json');
     var infos = loadJSONContent(compileStep, fs.readFileSync(bowerInfosPath));
 
@@ -79,7 +79,7 @@ var bowerHandler = function (compileStep, bowerTree, originalTree) {
       _.extend(infos, originalTree.overrides[pkgName]);
     }
 
-    if (! _.has(infos, "main") && ! options.additionalFiles)
+    if (! _.has(infos, "main"))
       return;
 
     if (_.isString(infos.main))
@@ -88,13 +88,6 @@ var bowerHandler = function (compileStep, bowerTree, originalTree) {
     toInclude = [];
     if (infos.main)
       toInclude = toInclude.concat(infos.main);
-
-    if (options.additionalFiles) {
-      if (_.isString(options.additionalFiles))
-        options.additionalFiles = [options.additionalFiles];
-
-      toInclude = toInclude.concat(options.additionalFiles);
-    }
 
     var matches = function (files) {
       var pkgPath = path.join(bowerDirectory, pkgName);
@@ -185,12 +178,6 @@ Plugin.registerSourceHandler("json", null);
 Plugin.registerSourceHandler("bower.json", {archMatching: "web"}, function (compileStep) {
   var bowerTree = loadJSONFile(compileStep);
   var originalTree = bowerTree;
-
-  // bower.json files have additional metadata beyond what we care about (dependancies)
-  // but previous versions of this package assumed it was a flatter list
-  // so allow both
-  if (_.has(bowerTree, "dependencies"))
-    bowerTree = bowerTree.dependencies;
 
   return bowerHandler(compileStep, bowerTree, originalTree);
 });
