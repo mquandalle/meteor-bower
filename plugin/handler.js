@@ -48,12 +48,13 @@ var bowerHandler = function (compileStep, bowerTree, originalTree) {
     var installedPackages = [];
     // Try to install packages offline first.
     try {
-      installedPackages = Bower.install(installList, {save: true, forceLatest: true}, {directory: bowerDirectory, offline: true});
+      installedPackages = Bower.install([], {save: true, forceLatest: true}, {directory: bowerDirectory, offline: true});
     }
     catch( e ) {
+      log( e );
       // In case of failure, try to fetch packages online
       try {
-        installedPackages = Bower.install(installList, {save: true, forceLatest: true}, {directory: bowerDirectory});
+        installedPackages = Bower.install([], {save: true, forceLatest: true}, {directory: bowerDirectory});
       }
       catch( e ) {
         log( e );
