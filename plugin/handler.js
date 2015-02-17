@@ -10,7 +10,7 @@ log = function (message) {
   return console.log("Bower: ", message);
 };
 
-var bowerHandler = function (compileStep, bowerTree, originalTree) {
+var bowerHandler = function (compileStep, bowerTree) {
 
   if (! _.isObject(bowerTree.dependencies))
     compileStep.error({
@@ -75,8 +75,8 @@ var bowerHandler = function (compileStep, bowerTree, originalTree) {
     var infos = loadJSONContent(compileStep, fs.readFileSync(bowerInfosPath));
 
     // Bower overrides support
-    if (originalTree.overrides && originalTree.overrides[pkgName]) {
-      _.extend(infos, originalTree.overrides[pkgName]);
+    if (bowerTree.overrides && bowerTree.overrides[pkgName]) {
+      _.extend(infos, bowerTree.overrides[pkgName]);
     }
 
     if (! _.has(infos, "main"))
@@ -177,7 +177,6 @@ Plugin.registerSourceHandler("json", null);
 
 Plugin.registerSourceHandler("bower.json", {archMatching: "web"}, function (compileStep) {
   var bowerTree = loadJSONFile(compileStep);
-  var originalTree = bowerTree;
 
-  return bowerHandler(compileStep, bowerTree, originalTree);
+  return bowerHandler(compileStep, bowerTree);
 });
