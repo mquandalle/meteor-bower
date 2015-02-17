@@ -2,15 +2,11 @@ var path = Npm.require("path");
 var fs = Npm.require("fs");
 var glob = Npm.require("glob");
 
-// Install bower components into the local meteor directory.
-// XXX Should we find a better host?
-var bowerHome = ".meteor/local/bower";
-
 log = function (message) {
   return console.log("Bower: ", message);
 };
 
-var bowerHandler = function (compileStep, bowerTree) {
+var bowerHandler = function (compileStep, bowerTree, bowerHome) {
 
   if (! _.isObject(bowerTree.dependencies))
     compileStep.error({
@@ -178,5 +174,15 @@ Plugin.registerSourceHandler("json", null);
 Plugin.registerSourceHandler("bower.json", {archMatching: "web"}, function (compileStep) {
   var bowerTree = loadJSONFile(compileStep);
 
-  return bowerHandler(compileStep, bowerTree);
+  //
+  // Parse .bowerrc file if exists in the same folder as bower.json
+  //
+  // Install bower components into the local meteor directory.
+  // XXX Should we find a better host?
+  var bowerHome = ".meteor/local/bower";
+  var bowerrc = parseJSONFile(path.dirname(compileStep.inputPath) + '/.bowerrc');
+  if (bowerrc && _.has(bowerrc, "directory"))
+    bowerHome = bowerrc.directory;
+
+  return bowerHandler(compileStep, bowerTree, bowerHome);
 });
