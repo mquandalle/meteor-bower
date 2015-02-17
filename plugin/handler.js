@@ -43,18 +43,22 @@ var bowerHandler = function (compileStep, bowerTree, originalTree) {
   //  Ref: https://github.com/bower/bower.json-spec#dependencies
   var installList = _.map(bowerTree, mapBowerDefinitions);
 
-  // `localCache` use the same format than `installList`:
-  // ["foo#1.2.3", "foo#2.1.2"]
-  // If a value is present in `localCache` we remove it from the `installList`
-  var localCache = Bower.list(null, {offline: true, directory: bowerDirectory});
-  localCache = _.map(localCache.pkgMeta.dependencies, mapBowerDefinitions);
-  installList = _.filter(installList, function (pkg) {
-    return localCache.indexOf(pkg) === -1;
-  });
-
   // Installation
   if (installList.length) {
-    var installedPackages = Bower.install(installList, {save: true, forceLatest: true}, {directory: bowerDirectory});
+    var installedPackages = [];
+    // Try to install packages offline first.
+    try {
+      installedPackages = Bower.install(installList, {save: true, forceLatest: true}, {directory: bowerDirectory, offline: true});
+    }
+    catch( e ) {
+      // In case of failure, try to fetch packages online
+      try {
+        installedPackages = Bower.install(installList, {save: true, forceLatest: true}, {directory: bowerDirectory});
+      }
+      catch( e ) {
+        log( e );
+      }
+    }
     _.each(installedPackages, function (val, pkgName) {
        log(pkgName + " v" + val.pkgMeta.version + " successfully installed");
     });
