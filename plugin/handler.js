@@ -25,9 +25,7 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
       return name + "#" + definition;
   };
 
-  var bowerDirectory = path.join(path.relative(process.cwd(),
-                          path.dirname(compileStep._fullInputPath)), bowerHome);
-
+  var cwd = path.dirname(compileStep._fullInputPath);
   // Convert bowerTree object to an array format needed by `Bower.install`:
   //  dependencies: {
   //    "foo": "1.2.3",
@@ -44,13 +42,13 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
     var installedPackages = [];
     // Try to install packages offline first.
     try {
-      installedPackages = Bower.install([], {save: true, forceLatest: true}, {directory: bowerDirectory, offline: true});
+      installedPackages = Bower.install([], {save: true, forceLatest: true}, {directory: bowerHome, offline: true, cwd: cwd});
     }
     catch( e ) {
       log( e );
       // In case of failure, try to fetch packages online
       try {
-        installedPackages = Bower.install([], {save: true, forceLatest: true}, {directory: bowerDirectory});
+        installedPackages = Bower.install([], {save: true, forceLatest: true}, {directory: bowerHome, cwd: cwd});
       }
       catch( e ) {
         log( e );
@@ -67,7 +65,8 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
   //  versions from different places), we should only include it once with the
   //  good version. Hopefully the `constraint-solver` package will help.
   _.each(bowerTree.dependencies, function (options, pkgName) {
-    var bowerInfosPath = path.join(bowerDirectory, pkgName, '.bower.json');
+    var pkgPath = path.join(cwd, bowerHome, pkgName);
+    var bowerInfosPath = path.join(pkgPath, '.bower.json');
     var infos = loadJSONContent(compileStep, fs.readFileSync(bowerInfosPath));
 
     // Bower overrides support
@@ -86,7 +85,6 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
       toInclude = toInclude.concat(infos.main);
 
     var matches = function (files) {
-      var pkgPath = path.join(bowerDirectory, pkgName);
       return _.map(files, function(pattern) {
         return glob.sync(pattern, { cwd: pkgPath });
       });
@@ -94,7 +92,7 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
     toInclude = _.uniq(_.flatten(matches(toInclude)));
 
     _.each(toInclude, function (fileName) {
-      var contentPath = path.join(bowerDirectory, pkgName, fileName);
+      var contentPath = path.join(pkgPath, fileName);
       var virtualPath = path.join('packages/bower/', pkgName, fileName);
       var content = fs.readFileSync(contentPath);
       var ext = path.extname(fileName).slice(1);
