@@ -2,19 +2,15 @@ var path = Npm.require("path");
 var fs = Npm.require("fs");
 var glob = Npm.require("glob");
 
-// Install bower components into the local meteor directory.
-// XXX Should we find a better host?
-var bowerHome = ".meteor/local/bower";
-
 log = function (message) {
   return console.log("Bower: ", message);
 };
 
-var bowerHandler = function (compileStep, bowerTree, originalTree) {
+var bowerHandler = function (compileStep, bowerTree, bowerHome) {
 
-  if (! _.isObject(bowerTree))
+  if (! _.isObject(bowerTree.dependencies))
     compileStep.error({
-      message: "Bower list must be a dictionary in " + compileStep.inputPath
+      message: "Bower dependencies list must be a dictionary in " + compileStep.inputPath
     });
 
   mapBowerDefinitions = function (definition, name) {
@@ -29,9 +25,7 @@ var bowerHandler = function (compileStep, bowerTree, originalTree) {
       return name + "#" + definition;
   };
 
-  var bowerDirectory = path.join(path.relative(process.cwd(),
-                          path.dirname(compileStep._fullInputPath)), bowerHome);
-
+  var cwd = path.dirname(compileStep._fullInputPath);
   // Convert bowerTree object to an array format needed by `Bower.install`:
   //  dependencies: {
   //    "foo": "1.2.3",
@@ -41,40 +35,51 @@ var bowerHandler = function (compileStep, bowerTree, originalTree) {
   //  =>
   //  ["foo#1.2.3", "bar=owner/repo#2.1.2", "foobar=git://github.com/owner/repo#branchortag"]
   //  Ref: https://github.com/bower/bower.json-spec#dependencies
-  var installList = _.map(bowerTree, mapBowerDefinitions);
-
-  // `localCache` use the same format than `installList`:
-  // ["foo#1.2.3", "foo#2.1.2"]
-  // If a value is present in `localCache` we remove it from the `installList`
-  var localCache = Bower.list(null, {offline: true, directory: bowerDirectory});
-  localCache = _.map(localCache.pkgMeta.dependencies, mapBowerDefinitions);
-  installList = _.filter(installList, function (pkg) {
-    return localCache.indexOf(pkg) === -1;
-  });
+  var installList = _.map(bowerTree.dependencies, mapBowerDefinitions);
 
   // Installation
   if (installList.length) {
-    var installedPackages = Bower.install(installList, {save: true, forceLatest: true}, {directory: bowerDirectory});
+    var installedPackages = [];
+    // Try to install packages offline first.
+    try {
+      installedPackages = Bower.install([], {save: true, forceLatest: true}, {directory: bowerHome, offline: true, cwd: cwd});
+    }
+    catch( e ) {
+      log( e );
+      // In case of failure, try to fetch packages online
+      try {
+        installedPackages = Bower.install([], {save: true, forceLatest: true}, {directory: bowerHome, cwd: cwd});
+      }
+      catch( e ) {
+        log( e );
+      }
+    }
     _.each(installedPackages, function (val, pkgName) {
        log(pkgName + " v" + val.pkgMeta.version + " successfully installed");
     });
   }
+
+  // Get all packages in localCache and their dependencies recursively.
+  // Order packages by descending depth so that packages get inlcuded in the correct order
+  var localCache = Bower.list(null, {offline: true, directory: bowerHome, cwd: cwd});
+  var bowerDependencies = _.chain(getDependencies(localCache)).sortBy("depth").reverse().value();
 
   // Loop over packages, look at each `.bower.json` attribute `main` and
   //  add the associated file to the Meteor bundle.
   // XXX If a package is present more than once (potentialy in different
   //  versions from different places), we should only include it once with the
   //  good version. Hopefully the `constraint-solver` package will help.
-  _.each(bowerTree, function (options, pkgName) {
-    var bowerInfosPath = path.join(bowerDirectory, pkgName, '.bower.json');
-    var infos = loadJSONContent(compileStep, fs.readFileSync(bowerInfosPath));
+  _.each(bowerDependencies, function (item) {
+    var pkgName = item.pkgName;
+    var pkgPath = path.join(cwd, bowerHome, pkgName);
+    var infos = item.pkgMeta;
 
     // Bower overrides support
-    if (originalTree.overrides && originalTree.overrides[pkgName]) {
-      _.extend(infos, originalTree.overrides[pkgName]);
+    if (bowerTree.overrides && bowerTree.overrides[pkgName]) {
+      _.extend(infos, bowerTree.overrides[pkgName]);
     }
 
-    if (! _.has(infos, "main") && ! options.additionalFiles)
+    if (! _.has(infos, "main"))
       return;
 
     if (_.isString(infos.main))
@@ -84,15 +89,7 @@ var bowerHandler = function (compileStep, bowerTree, originalTree) {
     if (infos.main)
       toInclude = toInclude.concat(infos.main);
 
-    if (options.additionalFiles) {
-      if (_.isString(options.additionalFiles))
-        options.additionalFiles = [options.additionalFiles];
-
-      toInclude = toInclude.concat(options.additionalFiles);
-    }
-
     var matches = function (files) {
-      var pkgPath = path.join(bowerDirectory, pkgName);
       return _.map(files, function(pattern) {
         return glob.sync(pattern, { cwd: pkgPath });
       });
@@ -100,7 +97,7 @@ var bowerHandler = function (compileStep, bowerTree, originalTree) {
     toInclude = _.uniq(_.flatten(matches(toInclude)));
 
     _.each(toInclude, function (fileName) {
-      var contentPath = path.join(bowerDirectory, pkgName, fileName);
+      var contentPath = path.join(pkgPath, fileName);
       var virtualPath = path.join('packages/bower/', pkgName, fileName);
       var content = fs.readFileSync(contentPath);
       var ext = path.extname(fileName).slice(1);
@@ -162,12 +159,25 @@ var parseJSONFile = function(file) {
   return null;
 };
 
-//
-// Parse ./.bowerrc file if exists in the project's root folder.
-//
-var bowerrc = parseJSONFile('./.bowerrc');
-if (bowerrc && _.has(bowerrc, "directory"))
-  bowerHome = bowerrc.directory;
+var getDependencies = function( pkg, depth, list ){
+  depth = depth || 0;
+  list = list || [];
+  var item = _.findWhere(list, {"pkgName": pkg.pkgMeta.name});
+  if( item === undefined ){
+    list.push({
+      "pkgName": pkg.pkgMeta.name,
+      "pkgMeta": pkg.pkgMeta,
+      "depth": depth
+    });
+  }
+  else{
+    item.depth = depth;
+  }
+  _.each(pkg.dependencies, function(value, key){
+    getDependencies(value, depth+1, list );
+  });
+  return list;
+};
 
 /*******************/
 /* Source Handlers */
@@ -179,13 +189,16 @@ Plugin.registerSourceHandler("json", null);
 
 Plugin.registerSourceHandler("bower.json", {archMatching: "web"}, function (compileStep) {
   var bowerTree = loadJSONFile(compileStep);
-  var originalTree = bowerTree;
 
-  // bower.json files have additional metadata beyond what we care about (dependancies)
-  // but previous versions of this package assumed it was a flatter list
-  // so allow both
-  if (_.has(bowerTree, "dependencies"))
-    bowerTree = bowerTree.dependencies;
+  //
+  // Parse .bowerrc file if exists in the same folder as bower.json
+  //
+  // Install bower components into the local meteor directory.
+  // XXX Should we find a better host?
+  var bowerHome = ".meteor/local/bower";
+  var bowerrc = parseJSONFile(path.dirname(compileStep._fullInputPath) + '/.bowerrc');
+  if (bowerrc && _.has(bowerrc, "directory"))
+    bowerHome = bowerrc.directory;
 
-  return bowerHandler(compileStep, bowerTree, originalTree);
+  return bowerHandler(compileStep, bowerTree, bowerHome);
 });
