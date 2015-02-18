@@ -154,13 +154,6 @@ var parseJSONFile = function(file) {
   return null;
 };
 
-//
-// Parse ./.bowerrc file if exists in the project's root folder.
-//
-var bowerrc = parseJSONFile('./.bowerrc');
-if (bowerrc && _.has(bowerrc, "directory"))
-  bowerHome = bowerrc.directory;
-
 /*******************/
 /* Source Handlers */
 /*******************/
