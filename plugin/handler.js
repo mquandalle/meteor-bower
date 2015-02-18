@@ -59,15 +59,20 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
     });
   }
 
+  // Get all packages in localCache and their dependencies recursively.
+  // Order packages by descending depth so that packages get inlcuded in the correct order
+  var localCache = Bower.list(null, {offline: true, directory: bowerHome, cwd: cwd});
+  var bowerDependencies = _.chain(getDependencies(localCache)).sortBy("depth").reverse().value();
+
   // Loop over packages, look at each `.bower.json` attribute `main` and
   //  add the associated file to the Meteor bundle.
   // XXX If a package is present more than once (potentialy in different
   //  versions from different places), we should only include it once with the
   //  good version. Hopefully the `constraint-solver` package will help.
-  _.each(bowerTree.dependencies, function (options, pkgName) {
+  _.each(bowerDependencies, function (item) {
+    var pkgName = item.pkgName;
     var pkgPath = path.join(cwd, bowerHome, pkgName);
-    var bowerInfosPath = path.join(pkgPath, '.bower.json');
-    var infos = loadJSONContent(compileStep, fs.readFileSync(bowerInfosPath));
+    var infos = item.pkgMeta;
 
     // Bower overrides support
     if (bowerTree.overrides && bowerTree.overrides[pkgName]) {
@@ -152,6 +157,26 @@ var parseJSONFile = function(file) {
   catch (e) { }
 
   return null;
+};
+
+var getDependencies = function( pkg, depth, list ){
+  depth = depth || 0;
+  list = list || [];
+  var item = _.findWhere(list, {"pkgName": pkg.pkgMeta.name});
+  if( item === undefined ){
+    list.push({
+      "pkgName": pkg.pkgMeta.name,
+      "pkgMeta": pkg.pkgMeta,
+      "depth": depth
+    });
+  }
+  else{
+    item.depth = depth;
+  }
+  _.each(pkg.dependencies, function(value, key){
+    getDependencies(value, depth+1, list );
+  });
+  return list;
 };
 
 /*******************/
