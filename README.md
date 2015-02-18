@@ -47,15 +47,41 @@ to reference them.
 If you want to use the `bower install <package> --save` command, you can add
 this `.bowerrc` file in the project root directory:
 
-```
+```json
 {
-  "directory" : ".meteor/local/bower"
+  "directory": ".meteor/local/bower"
 }
 ```
 
 If you need to reference the raw files (eg Polymer components in html files),
-you can set a different directory, eg "public/bower". TODO: allow multiple
-installation directories #49.
+you can set a different directory, eg "public/bower". You can also have multiple 
+`bower.json` files, each paired with a `.bowerrc`, for instance:
+
+```json
+bower.json:
+{
+  "dependencies": {
+    "select2": "3.4.5"
+  }
+  ...
+}
+.bowerrc
+{
+  "directory": ".meteor/local/bower"
+}
+
+lib/bower.json:
+{
+  "dependencies": {
+    "polymer": "~0.5.1"
+  }
+  ...
+}
+lib/.bowerrc:
+{
+  "directory": "../public/bower"
+}
+```
 
 ## Contributing
 
