@@ -178,7 +178,7 @@ Plugin.registerSourceHandler("bower.json", {archMatching: "web"}, function (comp
   // Install bower components into the local meteor directory.
   // XXX Should we find a better host?
   var bowerHome = ".meteor/local/bower";
-  var bowerrc = parseJSONFile(path.dirname(compileStep.inputPath) + '/.bowerrc');
+  var bowerrc = parseJSONFile(path.dirname(compileStep._fullInputPath) + '/.bowerrc');
   if (bowerrc && _.has(bowerrc, "directory"))
     bowerHome = bowerrc.directory;
 
