@@ -70,7 +70,7 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
   //  versions from different places), we should only include it once with the
   //  good version. Hopefully the `constraint-solver` package will help.
   _.each(bowerDependencies, function (item) {
-    var pkgName = item.pkgName;
+    var pkgName = item.pkgMeta._originalSource || item.pkgName;
     var pkgPath = path.join(cwd, bowerHome, pkgName);
     var infos = item.pkgMeta;
 
