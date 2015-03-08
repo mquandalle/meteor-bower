@@ -34,8 +34,10 @@ downloaded, and the appropriate HTML tags to include those libraries will
 automatically be added to your app. So you can *just start using* `select2`
 widgets, and styles will be set correctly. (If you're curious just look at the
 HTML source of a rendered page!) We use the `main` section of the library's
-`bower.json` file to determine which files should be loaded. If the package
-you're adding doesn't use the `main` section, you can choose which files you
+`bower.json` file to determine which files should be loaded. 
+
+**If the package
+you're adding doesn't use the `main` section:** you can choose which files you
 want by adding an `override` field to your `bower.json` as described in
 [#54](https://github.com/mquandalle/meteor-bower/pull/54).
 
@@ -44,6 +46,7 @@ reference the included files or use something like
 [grunt-bower-install](https://github.com/stephenplusplus/grunt-bower-install)
 to reference them.
 
+### Using `bower --save`
 If you want to use the `bower install <package> --save` command, you can add
 this `.bowerrc` file in the project root directory:
 
@@ -53,8 +56,33 @@ this `.bowerrc` file in the project root directory:
 }
 ```
 
+### Raw files
 If you need to reference the raw files (eg Polymer components in html files),
-you can set a different directory, eg "public/bower". You can also have multiple 
+you can set a different directory, eg "public/bower", and include those files
+manually in your `<head>`. 
+
+### Excluding dependencies
+You can ask `meteor-bower` to ignore a list of dependencies. For instance if you
+have the Meteor package `reactjs:react` and the bower package `react-bootstrap`,
+and you don't want `meteor-bower` to include a duplicate copy of react, add an
+`ignoredDependencies` array to your `bower.json`:
+
+```json
+{
+  "name": "my-app",
+  "version": "0.0.1",
+  "dependencies": {
+    "select2": "3.4.5",
+    "react-bootstrap": "~0.16.1"
+  },
+  "ignoredDependencies": [
+    "react"
+  ]
+}
+```
+
+### Multiple package directories
+You can also have multiple 
 `bower.json` files, each paired with a `.bowerrc`, for instance:
 
 ```json
