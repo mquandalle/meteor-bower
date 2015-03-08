@@ -64,6 +64,17 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
   var localCache = Bower.list(null, {offline: true, directory: bowerHome, cwd: cwd});
   var bowerDependencies = _.chain(getDependencies(localCache)).sortBy("depth").reverse().value();
 
+  if (_.isArray(bowerTree.ignoredDependencies)) {
+    bowerDependencies = _.filter(bowerDependencies, function(dep) {
+        return !(_.contains(bowerTree.ignoredDependencies, dep.pkgName));
+
+    });
+  } else if (bowerTree.ignoredDependencies) {
+    compileStep.error({
+      message: "Bower ignoredDependencies must be an array in " + compileStep.inputPath
+    });
+  }
+
   // Loop over packages, look at each `.bower.json` attribute `main` and
   //  add the associated file to the Meteor bundle.
   // XXX If a package is present more than once (potentialy in different
