@@ -61,6 +61,20 @@ If you need to reference the raw files (eg Polymer components in html files),
 you can set a different directory, eg "public/bower", and include those files
 manually in your `<head>`. 
 
+### Limit package scope
+Make `modernizr` only available on the client by setting the `arch` in your `bower.json`:
+
+```
+"overrides": {
+  "modernizr": {
+      "arch": [ "client" ]
+    }
+}
+```
+
+Other values include `[ "server" ]` and `[ "client", "server" ]`.
+  
+
 ### Excluding dependencies
 You can ask `meteor-bower` to ignore a list of dependencies. For instance if you
 have the Meteor package `reactjs:react` and the bower package `react-bootstrap`,
