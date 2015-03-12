@@ -90,6 +90,15 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
       _.extend(infos, bowerTree.overrides[pkgName]);
     }
 
+
+    compileArch = compileStep.arch === "os" ? "server" : "client";
+
+    if (! _.has(infos, "arch"))
+      infos.arch = ['client'];
+
+    if([].concat(infos.arch).indexOf(compileArch) == -1)
+      return;
+
     if (! _.has(infos, "main"))
       return;
 
@@ -120,9 +129,11 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
           sourcePath: contentPath,
           path: virtualPath,
           data: content.toString('utf8'),
-          bare: true
+          bare: compileArch === "client" ? true : void 0
         });
       } else if (ext === "css") {
+        if (compileArch === "server")
+          return;
         compileStep.addStylesheet({
           sourcePath: contentPath,
           path: virtualPath,
@@ -198,7 +209,7 @@ var getDependencies = function( pkg, depth, list ){
 //  This is a Meteor bug.
 Plugin.registerSourceHandler("json", null);
 
-Plugin.registerSourceHandler("bower.json", {archMatching: "web"}, function (compileStep) {
+Plugin.registerSourceHandler("bower.json", {}, function (compileStep) {
   var bowerTree = loadJSONFile(compileStep);
 
   //
