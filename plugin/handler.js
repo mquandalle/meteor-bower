@@ -82,7 +82,7 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
   //  good version. Hopefully the `constraint-solver` package will help.
   _.each(bowerDependencies, function (item) {
     var pkgName = item.pkgMeta._originalSource || item.pkgName;
-    if ( pkgName.indexOf( '://' ) !== -1 || pkgName.indexOf( '@' ) !== -1 ) { // it's a url, probably not what we are looking for
+    if ( pkgName.indexOf( '/' ) !== -1 || pkgName.indexOf( '@' ) !== -1 ) { // it's a url, probably not what we are looking for
       pkgName = item.pkgMeta.name;
     }
 
