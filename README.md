@@ -58,7 +58,7 @@ this `.bowerrc` file in the project root directory:
 
 ### Raw files
 If you need to reference the raw files (eg Polymer components in html files),
-you can set a different directory, eg "public/bower", and include those files
+you can set a different directory, eg "public/bower_components", and include those files
 manually in your `<head>`. 
 
 ### Limit package scope
@@ -121,7 +121,7 @@ lib/bower.json:
 }
 lib/.bowerrc:
 {
-  "directory": "../public/bower"
+  "directory": "../public/bower_components"
 }
 ```
 
