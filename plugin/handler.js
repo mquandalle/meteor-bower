@@ -60,27 +60,8 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
   }
 
   // Get all packages in localCache and their dependencies recursively.
-  // Order packages by descending depth so that packages get inlcuded in the correct order
   var localCache = Bower.list(null, {offline: true, directory: bowerHome, cwd: cwd});
-  var bowerDependencies = _.chain(getDependencies(localCache)).sortBy("depth").reverse().value();
-
-  var sortedDependencies = [];
-  var sorted = -1;
-  while (sortedDependencies.length < bowerDependencies.length && sorted < sortedDependencies.length) {
-    sorted = sortedDependencies.length;
-    _.each(bowerDependencies, function (dependency) {
-      if (sortedDependencies.indexOf(dependency) == -1) {
-        var ok = true;
-        if (dependency.pkgMeta.dependencies) {
-          _.each(_.keys(dependency.pkgMeta.dependencies), function (pkgName) {
-            if (!_.findWhere(sortedDependencies, {pkgName: pkgName})) ok = false;
-          });
-        }
-        if (ok) sortedDependencies.push(dependency);
-      }
-    });
-  }
-  bowerDependencies = _.union(sortedDependencies, bowerDependencies);
+  var bowerDependencies = getDependencies(localCache);
 
   if (_.isArray(bowerTree.ignoredDependencies)) {
     bowerDependencies = _.filter(bowerDependencies, function(dep) {
@@ -220,7 +201,27 @@ var getDependencies = function( pkg, depth, list ){
   _.each(pkg.dependencies, function(value, key){
     getDependencies(value, depth+1, list );
   });
-  return list;
+  return sortDependencies(list);
+};
+
+var sortDependencies = function(dependencies) {
+    var sortedDependencies = [];
+    var sorted = -1;
+    while (sortedDependencies.length < dependencies.length && sorted < sortedDependencies.length) {
+        sorted = sortedDependencies.length;
+        _.each(dependencies, function (dependency) {
+            if (sortedDependencies.indexOf(dependency) == -1) {
+                var ok = true;
+                if (dependency.pkgMeta.dependencies) {
+                    _.each(_.keys(dependency.pkgMeta.dependencies), function (pkgName) {
+                        if (!_.findWhere(sortedDependencies, {pkgName: pkgName})) ok = false;
+                    });
+                }
+                if (ok) sortedDependencies.push(dependency);
+            }
+        });
+    }
+    return _.union(sortedDependencies, dependencies);
 };
 
 /*******************/
