@@ -64,6 +64,24 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
   var localCache = Bower.list(null, {offline: true, directory: bowerHome, cwd: cwd});
   var bowerDependencies = _.chain(getDependencies(localCache)).sortBy("depth").reverse().value();
 
+  var sortedDependencies = [];
+  var sorted = -1;
+  while (sortedDependencies.length < bowerDependencies.length && sorted < sortedDependencies.length) {
+    sorted = sortedDependencies.length;
+    _.each(bowerDependencies, function (dependency) {
+      if (sortedDependencies.indexOf(dependency) == -1) {
+        var ok = true;
+        if (dependency.pkgMeta.dependencies) {
+          _.each(_.keys(dependency.pkgMeta.dependencies), function (pkgName) {
+            if (!_.findWhere(sortedDependencies, {pkgName: pkgName})) ok = false;
+          });
+        }
+        if (ok) sortedDependencies.push(dependency);
+      }
+    });
+  }
+  bowerDependencies = _.union(sortedDependencies, bowerDependencies);
+
   if (_.isArray(bowerTree.ignoredDependencies)) {
     bowerDependencies = _.filter(bowerDependencies, function(dep) {
         return !(_.contains(bowerTree.ignoredDependencies, dep.pkgName));
