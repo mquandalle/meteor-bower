@@ -2,7 +2,11 @@
 
 [Bower.io](http://bower.io/) is a popular repository of client-side JavaScript
 libraries.
+##Install to your meteor app first using
+```
+meteor add mquandalle:bower
 
+```
 ## Usage
 
 To use it in your meteor application, create a `bower.json` file:
