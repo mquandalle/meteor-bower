@@ -7,19 +7,23 @@ log = function (message) {
 };
 
 var bowerHandler = function (compileStep, bowerTree, bowerHome) {
-
   if (! _.isObject(bowerTree.dependencies))
     compileStep.error({
       message: "Bower dependencies list must be a dictionary in " + compileStep.inputPath
     });
 
-  mapBowerDefinitions = function (definition, name) {
+  var bowerInstall = function (options) {
+    options = _.extend(options || {}, {directory: bowerHome});
+    return Bower.install([], { save: true, forceLatest: true }, options);
+  };
+
+  var mapBowerDefinitions = function (definition, name) {
     if (!_.isString(definition))
       compileStep.error({
         message: "Definitions in the bower list must be strings. " + compileStep.inputPath
       });
 
-    if (definition.indexOf('/') != -1)
+    if (definition.indexOf('/') !== -1)
       return name + "=" + definition;
     else
       return name + "#" + definition;
@@ -27,14 +31,14 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
 
   var cwd = path.dirname(compileStep._fullInputPath);
   // Convert bowerTree object to an array format needed by `Bower.install`:
-  //  dependencies: {
-  //    "foo": "1.2.3",
-  //    "bar": "owner/repo#2.1.2",
-  //    "foobar": "git://github.com/owner/repo#branchortag"
-  //  }
-  //  =>
-  //  ["foo#1.2.3", "bar=owner/repo#2.1.2", "foobar=git://github.com/owner/repo#branchortag"]
-  //  Ref: https://github.com/bower/bower.json-spec#dependencies
+  // dependencies: {
+  //   "foo": "1.2.3",
+  //   "bar": "owner/repo#2.1.2",
+  //   "foobar": "git://github.com/owner/repo#branchortag"
+  // }
+  // =>
+  // ["foo#1.2.3", "bar=owner/repo#2.1.2", "foobar=git://github.com/owner/repo#branchortag"]
+  // Ref: https://github.com/bower/bower.json-spec#dependencies
   var installList = _.map(bowerTree.dependencies, mapBowerDefinitions);
 
   // Installation
@@ -42,18 +46,18 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
     var installedPackages = [];
     // Try to install packages offline first.
     try {
-      installedPackages = Bower.install([], {save: true, forceLatest: true}, {directory: bowerHome, offline: true, cwd: cwd});
-    }
-    catch( e ) {
-      log( e );
+      installedPackages = bowerInstall({ offline: true, cwd: cwd });
+    } catch (e) {
+      log(e);
+
       // In case of failure, try to fetch packages online
       try {
-        installedPackages = Bower.install([], {save: true, forceLatest: true}, {directory: bowerHome, cwd: cwd});
-      }
-      catch( e ) {
-        log( e );
+        installedPackages = bowerInstall({ cwd: cwd });
+      } catch (f) {
+        log(f);
       }
     }
+
     _.each(installedPackages, function (val, pkgName) {
        log(pkgName + " v" + val.pkgMeta.version + " successfully installed");
     });
@@ -65,9 +69,9 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
 
   if (_.isArray(bowerTree.ignoredDependencies)) {
     bowerDependencies = _.filter(bowerDependencies, function(dep) {
-        return !(_.contains(bowerTree.ignoredDependencies, dep.pkgName));
-
+      return ! _.contains(bowerTree.ignoredDependencies, dep.pkgName);
     });
+
   } else if (bowerTree.ignoredDependencies) {
     compileStep.error({
       message: "Bower ignoredDependencies must be an array in " + compileStep.inputPath
@@ -75,13 +79,14 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
   }
 
   // Loop over packages, look at each `.bower.json` attribute `main` and
-  //  add the associated file to the Meteor bundle.
+  // add the associated file to the Meteor bundle.
   // XXX If a package is present more than once (potentialy in different
-  //  versions from different places), we should only include it once with the
-  //  good version. Hopefully the `constraint-solver` package will help.
+  // versions from different places), we should only include it once with the
+  // good version. Hopefully the `constraint-solver` package will help.
   _.each(bowerDependencies, function (item) {
     var pkgName = item.pkgMeta._originalSource || item.pkgName;
-    if ( pkgName.indexOf( '/' ) !== -1 || pkgName.indexOf( '@' ) !== -1 ) { // it's a url, probably not what we are looking for
+    if (pkgName.indexOf('/') !== -1 || pkgName.indexOf('@') !== -1) {
+      // it's a url, probably not what we are looking for
       pkgName = item.pkgMeta.name;
     }
 
@@ -93,13 +98,12 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
       _.extend(infos, bowerTree.overrides[pkgName]);
     }
 
-
     compileArch = compileStep.arch === "os" ? "server" : "client";
 
     if (! _.has(infos, "arch"))
       infos.arch = ['client'];
 
-    if([].concat(infos.arch).indexOf(compileArch) == -1)
+    if ([].concat(infos.arch).indexOf(compileArch) === -1)
       return;
 
     if (! _.has(infos, "main"))
@@ -126,13 +130,13 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
       var ext = path.extname(fileName).slice(1);
 
       // XXX It would be cool to be able to add a ressource and let Meteor use
-      //  the right source handler.
+      // the right source handler.
       if (ext === "js") {
         compileStep.addJavaScript({
           sourcePath: contentPath,
           path: virtualPath,
           data: content.toString('utf8'),
-          bare: compileArch === "client" ? true : void 0
+          bare: compileArch === "client"
         });
       } else if (ext === "css") {
         if (compileArch === "server")
@@ -160,8 +164,7 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
 var loadJSONContent = function (compileStep, content) {
   try {
     return JSON.parse(content);
-  }
-  catch (e) {
+  } catch (e) {
     compileStep.error({
       message: "Syntax error in " + compileStep.inputPath,
       line: e.line,
@@ -178,8 +181,7 @@ var loadJSONFile = function (compileStep) {
 var parseJSONFile = function(file) {
   try {
     return JSON.parse(fs.readFileSync(file, 'utf8'));
-  }
-  catch (e) { }
+  } catch (e) { }
 
   return null;
 };
@@ -188,40 +190,42 @@ var getDependencies = function( pkg, depth, list ){
   depth = depth || 0;
   list = list || [];
   var item = _.findWhere(list, {"pkgName": pkg.pkgMeta.name});
-  if( item === undefined ){
+  if (item === undefined) {
     list.push({
       "pkgName": pkg.pkgMeta.name,
       "pkgMeta": pkg.pkgMeta,
       "depth": depth
     });
-  }
-  else{
+  } else {
     item.depth = depth;
   }
   _.each(pkg.dependencies, function(value, key){
-    getDependencies(value, depth+1, list );
+    getDependencies(value, depth + 1, list);
   });
   return sortDependencies(list);
 };
 
 var sortDependencies = function(dependencies) {
-    var sortedDependencies = [];
-    var sorted = -1;
-    while (sortedDependencies.length < dependencies.length && sorted < sortedDependencies.length) {
-        sorted = sortedDependencies.length;
-        _.each(dependencies, function (dependency) {
-            if (sortedDependencies.indexOf(dependency) == -1) {
-                var ok = true;
-                if (dependency.pkgMeta.dependencies) {
-                    _.each(_.keys(dependency.pkgMeta.dependencies), function (pkgName) {
-                        if (!_.findWhere(sortedDependencies, {pkgName: pkgName})) ok = false;
-                    });
-                }
-                if (ok) sortedDependencies.push(dependency);
-            }
-        });
-    }
-    return _.union(sortedDependencies, dependencies);
+  var sortedDependencies = [];
+  var sorted = -1;
+  while (sortedDependencies.length < dependencies.length && sorted < sortedDependencies.length) {
+    sorted = sortedDependencies.length;
+    _.each(dependencies, function (dependency) {
+      var ok = false;
+      if (sortedDependencies.indexOf(dependency) === -1) {
+        ok = true;
+        if (dependency.pkgMeta.dependencies) {
+          _.each(_.keys(dependency.pkgMeta.dependencies), function (pkgName) {
+            if (!_.findWhere(sortedDependencies, {pkgName: pkgName}))
+              ok = false;
+          });
+        }
+        if (ok)
+          sortedDependencies.push(dependency);
+      }
+    });
+  }
+  return _.union(sortedDependencies, dependencies);
 };
 
 /*******************/
@@ -229,13 +233,12 @@ var sortDependencies = function(dependencies) {
 /*******************/
 
 // XXX Hack. If this line is not present `xxx.json` handlers are not called.
-//  This is a Meteor bug.
+// This is a Meteor bug.
 Plugin.registerSourceHandler("json", null);
 
 Plugin.registerSourceHandler("bower.json", {}, function (compileStep) {
   var bowerTree = loadJSONFile(compileStep);
 
-  //
   // Parse .bowerrc file if exists in the same folder as bower.json
   //
   // Install bower components into the local meteor directory.
