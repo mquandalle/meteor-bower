@@ -6,8 +6,85 @@ log = function (message) {
   return console.log("Bower: ", message);
 };
 
-var bowerHandler = function (compileStep, bowerTree, bowerHome) {
-  if (! _.isObject(bowerTree.dependencies))
+function BowerHandler() {
+  // Install bower components into the local meteor directory.
+  // XXX Should we find a better host?
+  this.bowerHome = ".meteor/local/bower";
+  this.bowerTree = {};
+}
+
+BowerHandler.prototype.processFilesForTarget = function(files) {
+  var bowerJsonFile, bowerrcFile;
+  files.forEach(file, function() {
+    if (file.getBasename === 'bower.json')
+      bowerJsonFile = file;
+    else if (file.getBasename === '.bowerrc')
+      bowerJsonFile = file;
+  });
+
+  var parseJSONFile = function(file) {
+    try {
+      return JSON.parse(file.getContentsAsString());
+    } catch (e) {
+      file.error(e);
+    }
+  };
+
+  // XXX NEW-API: find a way to get the bowerrc file from the file list
+  // Parse .bowerrc file if exists in the same folder as bower.json
+  var bowerrc = parseJSONFile(bowerrcFile);
+  if (bowerrc && _.has(bowerrc, "directory")) {
+    this.bowerHome = bowerrc.directory;
+  }
+
+  var bowerTree = parseJSONFile(compileStep);
+  this.installDependencies();
+};
+
+BowerHandler.prototype.getDependencies = function(pkg, depth, list){
+  depth = depth || 0;
+  list = list || [];
+  var item = _.findWhere(list, {"pkgName": pkg.pkgMeta.name});
+  if (item === undefined) {
+    list.push({
+      "pkgName": pkg.pkgMeta.name,
+      "pkgMeta": pkg.pkgMeta,
+      "depth": depth
+    });
+  } else {
+    item.depth = depth;
+  }
+  _.each(pkg.dependencies, function(value, key){
+    getDependencies(value, depth + 1, list);
+  });
+  return this.sortDependencies(list);
+};
+
+BowerHandler.prototype.sortDependencies = function (dependencies) {
+  var sortedDependencies = [];
+  var sorted = -1;
+  while (sortedDependencies.length < dependencies.length && sorted < sortedDependencies.length) {
+    sorted = sortedDependencies.length;
+    _.each(dependencies, function (dependency) {
+      var ok = false;
+      if (sortedDependencies.indexOf(dependency) === -1) {
+        ok = true;
+        if (dependency.pkgMeta.dependencies) {
+          _.each(_.keys(dependency.pkgMeta.dependencies), function (pkgName) {
+            if (!_.findWhere(sortedDependencies, {pkgName: pkgName}))
+              ok = false;
+          });
+        }
+        if (ok)
+          sortedDependencies.push(dependency);
+      }
+    });
+  }
+  return _.union(sortedDependencies, dependencies);
+};
+
+BowerHandler.prototype.installDependencies = function() {
+  if (! _.isObject(this.bowerTree.dependencies))
     compileStep.error({
       message: "Bower dependencies list must be a dictionary in " + compileStep.inputPath
     });
@@ -65,7 +142,7 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
 
   // Get all packages in localCache and their dependencies recursively.
   var localCache = Bower.list(null, {offline: true, directory: bowerHome, cwd: cwd});
-  var bowerDependencies = getDependencies(localCache);
+  var bowerDependencies = this.getDependencies(localCache);
 
   if (_.isArray(bowerTree.ignoredDependencies)) {
     bowerDependencies = _.filter(bowerDependencies, function(dep) {
@@ -157,96 +234,9 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
   });
 };
 
-/****************/
-/* JSON Loaders */
-/****************/
-
-var loadJSONContent = function (compileStep, content) {
-  try {
-    return JSON.parse(content);
-  } catch (e) {
-    compileStep.error({
-      message: "Syntax error in " + compileStep.inputPath,
-      line: e.line,
-      column: e.column
-    });
-  }
-};
-
-var loadJSONFile = function (compileStep) {
-  var content = compileStep.read().toString('utf8');
-  return loadJSONContent(compileStep, content);
-};
-
-var parseJSONFile = function(file) {
-  try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
-  } catch (e) { }
-
-  return null;
-};
-
-var getDependencies = function( pkg, depth, list ){
-  depth = depth || 0;
-  list = list || [];
-  var item = _.findWhere(list, {"pkgName": pkg.pkgMeta.name});
-  if (item === undefined) {
-    list.push({
-      "pkgName": pkg.pkgMeta.name,
-      "pkgMeta": pkg.pkgMeta,
-      "depth": depth
-    });
-  } else {
-    item.depth = depth;
-  }
-  _.each(pkg.dependencies, function(value, key){
-    getDependencies(value, depth + 1, list);
-  });
-  return sortDependencies(list);
-};
-
-var sortDependencies = function(dependencies) {
-  var sortedDependencies = [];
-  var sorted = -1;
-  while (sortedDependencies.length < dependencies.length && sorted < sortedDependencies.length) {
-    sorted = sortedDependencies.length;
-    _.each(dependencies, function (dependency) {
-      var ok = false;
-      if (sortedDependencies.indexOf(dependency) === -1) {
-        ok = true;
-        if (dependency.pkgMeta.dependencies) {
-          _.each(_.keys(dependency.pkgMeta.dependencies), function (pkgName) {
-            if (!_.findWhere(sortedDependencies, {pkgName: pkgName}))
-              ok = false;
-          });
-        }
-        if (ok)
-          sortedDependencies.push(dependency);
-      }
-    });
-  }
-  return _.union(sortedDependencies, dependencies);
-};
-
-/*******************/
-/* Source Handlers */
-/*******************/
-
-// XXX Hack. If this line is not present `xxx.json` handlers are not called.
-// This is a Meteor bug.
-Plugin.registerSourceHandler("json", null);
-
-Plugin.registerSourceHandler("bower.json", {}, function (compileStep) {
-  var bowerTree = loadJSONFile(compileStep);
-
-  // Parse .bowerrc file if exists in the same folder as bower.json
-  //
-  // Install bower components into the local meteor directory.
-  // XXX Should we find a better host?
-  var bowerHome = ".meteor/local/bower";
-  var bowerrc = parseJSONFile(path.dirname(compileStep._fullInputPath) + '/.bowerrc');
-  if (bowerrc && _.has(bowerrc, "directory"))
-    bowerHome = bowerrc.directory;
-
-  return bowerHandler(compileStep, bowerTree, bowerHome);
+Plugin.registerCompiler({
+  filenames: ['bower.json', '.bowerrc']
+}, function() {
+  var compiler = new BowerHandler();
+  return compiler;
 });
