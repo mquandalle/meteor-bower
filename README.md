@@ -2,11 +2,13 @@
 
 [Bower.io](http://bower.io/) is a popular repository of client-side JavaScript
 libraries.
+
 ##Install to your meteor app first using
-```
-meteor add mquandalle:bower
 
 ```
+meteor add mquandalle:bower
+```
+
 ## Usage
 
 To use it in your meteor application, create a `bower.json` file:
@@ -38,7 +40,7 @@ downloaded, and the appropriate HTML tags to include those libraries will
 automatically be added to your app. So you can *just start using* `select2`
 widgets, and styles will be set correctly. (If you're curious just look at the
 HTML source of a rendered page!) We use the `main` section of the library's
-`bower.json` file to determine which files should be loaded. 
+`bower.json` file to determine which files should be loaded.
 
 **If the package
 you're adding doesn't use the `main` section:** you can choose which files you
@@ -51,6 +53,7 @@ reference the included files or use something like
 to reference them.
 
 ### Using `bower --save`
+
 If you want to use the `bower install <package> --save` command, you can add
 this `.bowerrc` file in the project root directory:
 
@@ -61,12 +64,15 @@ this `.bowerrc` file in the project root directory:
 ```
 
 ### Raw files
+
 If you need to reference the raw files (eg Polymer components in html files),
-you can set a different directory, eg "public/bower_components", and include those files
-manually in your `<head>`. 
+you can set a different directory, eg "public/bower_components", and include
+those files manually in your `<head>`.
 
 ### Limit package scope
-Make `modernizr` only available on the client by setting the `arch` in your `bower.json`:
+
+Make `modernizr` only available on the client by setting the `arch` in your
+`bower.json`:
 
 ```
 "overrides": {
@@ -77,9 +83,10 @@ Make `modernizr` only available on the client by setting the `arch` in your `bow
 ```
 
 Other values include `[ "server" ]` and `[ "client", "server" ]`.
-  
+
 
 ### Excluding dependencies
+
 You can ask `meteor-bower` to ignore a list of dependencies. For instance if you
 have the Meteor package `reactjs:react` and the bower package `react-bootstrap`,
 and you don't want `meteor-bower` to include a duplicate copy of react, add an
@@ -100,7 +107,8 @@ and you don't want `meteor-bower` to include a duplicate copy of react, add an
 ```
 
 ### Multiple package directories
-You can also have multiple 
+
+You can also have multiple
 `bower.json` files, each paired with a `.bowerrc`, for instance:
 
 ```json
