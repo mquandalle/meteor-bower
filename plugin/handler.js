@@ -234,7 +234,9 @@ var sortDependencies = function(dependencies) {
 
 // XXX Hack. If this line is not present `xxx.json` handlers are not called.
 // This is a Meteor bug.
-Plugin.registerSourceHandler("json", null);
+// The upcoming release of meteor (v1.2) provides a new API for plugin packages
+// that will make this hack unecessary.
+Plugin.registerSourceHandler("json", function() {});
 
 Plugin.registerSourceHandler("bower.json", {}, function (compileStep) {
   var bowerTree = loadJSONFile(compileStep);
