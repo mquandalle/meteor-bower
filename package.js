@@ -4,8 +4,8 @@ Package.describe({
   git: "https://github.com/mquandalle/meteor-bower.git",
   // This matches the upstream version. If you want to publish a new version of
   // the package without pulling a new upstream version, you should call it
-  // '1.4.1_1'
-  version: "1.4.1_1"
+  // '1.4.1_3'
+  version: "1.4.1_2"
 });
 
 Package.registerBuildPlugin({
@@ -19,7 +19,7 @@ Package.registerBuildPlugin({
     "plugin/handler.js"
   ],
   npmDependencies: {
-    "bower": "1.4.1",
+    "bower": "1.3.12",
     "glob": "3.2.9"
   }
 });
