@@ -7,8 +7,12 @@ log = function (message) {
 };
 
 var bowerHandler = function (compileStep, bowerTree, bowerHome) {
-  //instead of trying to restrict at the source handler
+
+  // instead of trying to restrict at the source handler
+  // we're just going to check if the requested input path from
+  // a list of potential json source matches bower.json filename
   var isBowerJson = compileStep.inputPath.indexOf("bower.json");
+
   // restrict to only bower.json handling
   if (isBowerJson > -1 ) {
     if (! _.isObject(bowerTree.dependencies))
@@ -236,11 +240,6 @@ var sortDependencies = function(dependencies) {
 /*******************/
 /* Source Handlers */
 /*******************/
-
-// XXX Hack. If this line is not present `xxx.json` handlers are not called.
-// This is a Meteor bug.
-// The upcoming release of meteor (v1.2) provides a new API for plugin packages
-// that will make this hack unecessary.
 Plugin.registerSourceHandler("json", {}, function (compileStep) {
   var bowerTree = loadJSONFile(compileStep);
   // Parse .bowerrc file if exists in the same folder as bower.json

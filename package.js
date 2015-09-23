@@ -23,9 +23,3 @@ Package.registerBuildPlugin({
     "glob": "5.0.14"
   }
 });
-
-
-Package.onUse(function (api) {
-  api.versionsFrom('METEOR@1.2');
-  //core meteor packages
-});
