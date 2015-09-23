@@ -5,23 +5,21 @@ Package.describe({
   // This matches the upstream version. If you want to publish a new version of
   // the package without pulling a new upstream version, you should call it
   // '1.4.1_4'
-  version: "1.4.1_3"
+  version: "1.5.2"
 });
 
 Package.registerBuildPlugin({
   name: "bower",
   use: [
     "meteor",
-    "underscore@1.0.0"
+    "underscore@1.0.4"
   ],
   sources: [
     "plugin/bower.js",
     "plugin/handler.js"
   ],
   npmDependencies: {
-    "bower": "1.4.1",
-    "glob": "3.2.9"
+    "bower": "1.5.2",
+    "glob": "5.0.14"
   }
 });
-
-// XXX Tests?
