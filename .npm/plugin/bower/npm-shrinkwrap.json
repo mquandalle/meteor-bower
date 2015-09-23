@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "bower": {
-      "version": "1.4.1",
+      "version": "1.5.2",
       "dependencies": {
         "abbrev": {
           "version": "1.0.7"
@@ -245,7 +245,7 @@
           "version": "0.3.2",
           "dependencies": {
             "js-yaml": {
-              "version": "3.3.1",
+              "version": "3.4.2",
               "dependencies": {
                 "argparse": {
                   "version": "1.0.2",
@@ -334,9 +334,20 @@
             }
           }
         },
-        "fstream": {
-          "version": "1.0.7",
+        "deep-sort-object": {
+          "version": "0.1.1",
           "dependencies": {
+            "mout": {
+              "version": "0.9.1"
+            }
+          }
+        },
+        "fstream": {
+          "version": "1.0.8",
+          "dependencies": {
+            "graceful-fs": {
+              "version": "4.1.2"
+            },
             "inherits": {
               "version": "2.0.1"
             }
@@ -535,7 +546,7 @@
               }
             },
             "figures": {
-              "version": "1.3.5"
+              "version": "1.4.0"
             },
             "lodash": {
               "version": "2.4.2"
@@ -583,12 +594,17 @@
                   "version": "1.1.0",
                   "dependencies": {
                     "minimist": {
-                      "version": "1.1.3"
+                      "version": "1.2.0"
                     }
                   }
                 },
                 "win-release": {
-                  "version": "1.0.0"
+                  "version": "1.1.1",
+                  "dependencies": {
+                    "semver": {
+                      "version": "5.0.3"
+                    }
+                  }
                 }
               }
             },
@@ -612,7 +628,7 @@
           "version": "1.0.1"
         },
         "lru-cache": {
-          "version": "2.6.5"
+          "version": "2.7.0"
         },
         "mkdirp": {
           "version": "0.5.0",
@@ -626,7 +642,7 @@
           "version": "0.11.0"
         },
         "nopt": {
-          "version": "3.0.3"
+          "version": "3.0.4"
         },
         "opn": {
           "version": "1.0.2"
@@ -643,7 +659,7 @@
           "version": "0.2.0",
           "dependencies": {
             "read": {
-              "version": "1.0.6",
+              "version": "1.0.7",
               "dependencies": {
                 "mute-stream": {
                   "version": "0.0.5"
@@ -738,13 +754,13 @@
               "version": "2.3.1",
               "dependencies": {
                 "hoek": {
-                  "version": "2.14.0"
+                  "version": "2.16.3"
                 },
                 "boom": {
-                  "version": "2.8.0"
+                  "version": "2.9.0"
                 },
                 "cryptiles": {
-                  "version": "2.0.4"
+                  "version": "2.0.5"
                 },
                 "sntp": {
                   "version": "1.0.9"
@@ -782,7 +798,7 @@
           "version": "0.6.1"
         },
         "rimraf": {
-          "version": "2.4.2",
+          "version": "2.4.3",
           "dependencies": {
             "glob": {
               "version": "5.0.14",
@@ -903,7 +919,7 @@
                       "version": "0.0.1"
                     },
                     "process-nextick-args": {
-                      "version": "1.0.2"
+                      "version": "1.0.3"
                     },
                     "string_decoder": {
                       "version": "0.10.31"
@@ -967,7 +983,7 @@
                                   "version": "0.0.1"
                                 },
                                 "process-nextick-args": {
-                                  "version": "1.0.2"
+                                  "version": "1.0.3"
                                 },
                                 "string_decoder": {
                                   "version": "0.10.31"
@@ -1003,7 +1019,7 @@
                           "version": "3.0.0"
                         },
                         "prepend-http": {
-                          "version": "1.0.2"
+                          "version": "1.0.3"
                         },
                         "read-all-stream": {
                           "version": "3.0.1",
@@ -1029,7 +1045,7 @@
                                   "version": "0.0.1"
                                 },
                                 "process-nextick-args": {
-                                  "version": "1.0.2"
+                                  "version": "1.0.3"
                                 },
                                 "string_decoder": {
                                   "version": "0.10.31"
@@ -1050,10 +1066,10 @@
                       "version": "3.0.3",
                       "dependencies": {
                         "rc": {
-                          "version": "1.1.0",
+                          "version": "1.1.1",
                           "dependencies": {
                             "minimist": {
-                              "version": "1.1.3"
+                              "version": "1.2.0"
                             },
                             "deep-extend": {
                               "version": "0.2.11"
@@ -1099,7 +1115,7 @@
           "version": "1.1.1"
         },
         "which": {
-          "version": "1.1.1",
+          "version": "1.1.2",
           "dependencies": {
             "is-absolute": {
               "version": "0.1.7",
@@ -1114,21 +1130,45 @@
       }
     },
     "glob": {
-      "version": "3.2.9",
+      "version": "5.0.14",
       "dependencies": {
-        "minimatch": {
-          "version": "0.2.14",
+        "inflight": {
+          "version": "1.0.4",
           "dependencies": {
-            "lru-cache": {
-              "version": "2.5.0"
-            },
-            "sigmund": {
-              "version": "1.0.0"
+            "wrappy": {
+              "version": "1.0.1"
             }
           }
         },
         "inherits": {
           "version": "2.0.1"
+        },
+        "minimatch": {
+          "version": "2.0.10",
+          "dependencies": {
+            "brace-expansion": {
+              "version": "1.1.0",
+              "dependencies": {
+                "balanced-match": {
+                  "version": "0.2.0"
+                },
+                "concat-map": {
+                  "version": "0.0.1"
+                }
+              }
+            }
+          }
+        },
+        "once": {
+          "version": "1.3.2",
+          "dependencies": {
+            "wrappy": {
+              "version": "1.0.1"
+            }
+          }
+        },
+        "path-is-absolute": {
+          "version": "1.0.0"
         }
       }
     }
