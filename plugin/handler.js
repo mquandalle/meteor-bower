@@ -134,8 +134,16 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
       _.each(toInclude, function (fileName) {
         var contentPath = path.join(pkgPath, fileName);
         var virtualPath = path.join('packages/bower/', pkgName, fileName);
-        var content = fs.readFileSync(contentPath);
-        var ext = path.extname(fileName).slice(1);
+        var content;
+        var ext;
+
+        // Only load real files
+        if (!fs.lstatSync(contentPath).isFile()) {
+          return;
+        }
+
+        content = fs.readFileSync(contentPath);
+        ext = path.extname(fileName).slice(1);
 
         // XXX It would be cool to be able to add a ressource and let Meteor use
         // the right source handler.
