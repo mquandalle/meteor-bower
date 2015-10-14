@@ -3,9 +3,9 @@ Package.describe({
   name: "mquandalle:bower",
   git: "https://github.com/mquandalle/meteor-bower.git",
   // This matches the upstream version. If you want to publish a new version of
-  // the package without pulling a new upstream version, you should call it
-  // '1.4.1_4'
-  version: "1.5.2"
+  // the package without pulling a new upstream version, you should increment
+  // the underscored number: '1.5.2' -> '1.5.2_1' -> '1.5.2_2'
+  version: "1.5.2_1"
 });
 
 Package.registerBuildPlugin({
