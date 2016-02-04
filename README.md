@@ -33,7 +33,15 @@ which-meteor-loads-javascript-files)). Take the deepest directory you have
 inside `[project root]/lib/`, add a `bower` directory, and put `bower.json`
 there. So for example, if you currently have no directories in `lib/`, then you
 can do `lib/bower/bower.json`, but if your current structure is `lib/foo/bar/`,
-then you should do `lib/foo/bar/bower/bower.json`.
+then you should do `lib/foo/bar/bower/bower.json`. Then put a `.bowerrc` file in
+the same directory with enough `../`s to get back to your project root. For 
+instance with a `lib/bower/bower.json` it would be:
+
+```json
+{
+  "directory": "../../.meteor/local/bower"
+}
+```
 
 The next time you run `meteor`, the `select2` and `backbone` libraries will be
 downloaded, and the appropriate HTML tags to include those libraries will
