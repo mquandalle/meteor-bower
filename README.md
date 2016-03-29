@@ -2,7 +2,7 @@
 
 ![deprecated](https://img.shields.io/badge/project-deprecated-red.svg)
 
-This package is deprecated in favor of Meteor 1.3+ NPM support and we recommend
+This package is deprecated in favor of [Meteor 1.3+ NPM support](http://guide.meteor.com/using-packages.html) and we recommend
 that you migrate your existing applications using this bower package to Meteor
 1.3 NPM. The new solution will be more robust and supported by MDG in the long
 run.
