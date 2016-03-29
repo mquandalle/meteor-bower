@@ -98,7 +98,7 @@ var bowerHandler = function (compileStep, bowerTree, bowerHome) {
         pkgName = item.pkgMeta.name;
       }
 
-      var pkgPath = path.join(cwd, bowerHome, pkgName);
+      var pkgPath = !!item.canonicalDir ? item.canonicalDir: path.join(cwd, bowerHome, pkgName);
       var infos = item.pkgMeta;
 
       // Bower overrides support
@@ -211,7 +211,8 @@ var getDependencies = function( pkg, depth, list ){
     list.push({
       "pkgName": pkg.pkgMeta.name,
       "pkgMeta": pkg.pkgMeta,
-      "depth": depth
+      "depth": depth,
+      "canonicalDir":pkg.canonicalDir
     });
   } else {
     item.depth = depth;
