@@ -1,7 +1,19 @@
 # Bower for Meteor
 
-[Bower.io](http://bower.io/) is a popular repository of client-side JavaScript
-libraries.
+![deprecated](https://img.shields.io/badge/project-deprecated-red.svg)
+
+This package is deprecated in favor of Meteor 1.3+ NPM support and we recommend
+that you migrate your existing applications using this bower package to Meteor
+1.3 NPM. The new solution will be more robust and supported by MDG in the long
+run.
+
+---
+
+This package is [broken in Meteor 1.3][issue-113] but is should still work fine
+on Meteor 1.2 and below. [Bower.io](http://bower.io/) is a popular repository of
+client-side JavaScript libraries.
+
+[issue-113]: https://github.com/mquandalle/meteor-bower/issues/113
 
 ##Install to your meteor app first using
 
@@ -34,7 +46,7 @@ inside `[project root]/lib/`, add a `bower` directory, and put `bower.json`
 there. So for example, if you currently have no directories in `lib/`, then you
 can do `lib/bower/bower.json`, but if your current structure is `lib/foo/bar/`,
 then you should do `lib/foo/bar/bower/bower.json`. Then put a `.bowerrc` file in
-the same directory with enough `../`s to get back to your project root. For 
+the same directory with enough `../`s to get back to your project root. For
 instance with a `lib/bower/bower.json` it would be:
 
 ```json
